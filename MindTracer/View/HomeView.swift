@@ -13,6 +13,8 @@ struct HomeView: View {
     
     @State private var summary: MindStateSummary?
     @State private var wisdomMessage: String = "Loading..."
+    @State private var showEntrySheet = false
+
     
     var body: some View {
         NavigationStack {
@@ -47,6 +49,18 @@ struct HomeView: View {
             .padding()
             .task {
                 await loadData()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showEntrySheet = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showEntrySheet) {
+                MindStateEntryFlow()
             }
         }
     }
@@ -86,3 +100,4 @@ extension HomeView {
 #Preview {
     HomeView()
 }
+
