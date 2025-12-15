@@ -12,50 +12,18 @@ import MapKit
 struct MindStateEntryFlow: View {
     @State private var timestamp = Date()
     @State private var coordinate: CLLocationCoordinate2D?
-    @State private var kind: String = "momentaryEmotion"
+    @State private var kind: MindStateKind = MindStateKind.momentaryEmotion
     @State private var valence: Double = 0.0
-    @State private var valenceClassification: String = "Neutral"
     @State private var labels: Set<MindFeeling> = []
     @State private var associations: Set<MindContext> = []
-
-    @State private var showLocationStep = false
-    @State private var showMindStateStep = false
+    @Binding var showEntrySheet: Bool
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                DatePicker("Timestamp", selection: $timestamp)
-                    .datePickerStyle(.compact)
-                
-                Button("Next: Location") {
-                    showLocationStep = true
-                }
-                .navigationDestination(isPresented: $showLocationStep) {
-                    EntryStepLocation(coordinate: $coordinate)
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Next") {
-                                    showMindStateStep = true
-                                }
-                            }
-                        }
-                }
-
-                NavigationLink(destination: MindStateStep(
-                    kind: $kind,
-                    valence: $valence,
-                    valenceClassification: $valenceClassification,
-                    labels: $labels,
-                    associations: $associations,
-                    timestamp: timestamp,
-                    coordinate: coordinate
-                ), isActive: $showMindStateStep) {
-                    EmptyView()
-                }
-            }
-            .padding()
+            EntryStepDateTime(timestamp: $timestamp, coordinate: $coordinate, kind: $kind, valence: $valence, labels: $labels, associations: $associations, showEntrySheet: $showEntrySheet)
             .navigationTitle("New Mind State")
         }
+        
     }
 }
 

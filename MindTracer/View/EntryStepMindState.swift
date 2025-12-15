@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct EntryStepMindState: View {
     @Binding var kind: MindStateKind
     @Binding var valence: Double
     @Binding var labels: Set<MindFeeling>
     @Binding var associations: Set<MindContext>
+    @Binding var timestamp: Date
+    @Binding var coordinate: CLLocationCoordinate2D?
+    @Binding var showEntrySheet: Bool
+    
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         Form {
@@ -19,9 +25,26 @@ struct EntryStepMindState: View {
                 Text("Momentary Emotion").tag(MindStateKind.momentaryEmotion)
                 Text("Daily Mood").tag(MindStateKind.dailyMood)
             }
+            .pickerStyle(.segmented)
             
-            Slider(value: $valence, in: -1.0...1.0, step: 0.01) {
-                Text("Valence")
+            // MARK: - Valence
+            Section("Valence") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Slider(value: $valence, in: -1.0...1.0, step: 0.01)
+                    
+                    HStack {
+                        Text("Unpleasant")
+                        Spacer()
+                        Text("Pleasant")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    
+                    Text(valenceClassification.rawValue.capitalized)
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
             }
             
             Section("Labels") {
@@ -45,8 +68,33 @@ struct EntryStepMindState: View {
                     ))
                 }
             }
+            
+            Button("Save Entry") {
+                let entry = MindStateEntry(
+                    timestamp: timestamp,
+                    kind: kind,
+                    valence: valence,
+                    feelings: Array(labels),
+                    contexts: Array(associations),
+                    location: coordinate
+                )
+                print("New MindStateEntry:", entry)
+                showEntrySheet = false
+//                dismiss()
+            }
         }
         .navigationTitle("Mind State")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private var valenceClassification: ValenceClassification {
+        switch valence {
+        case ..<(-0.6): return .veryUnpleasant
+        case -0.6..<(-0.2): return .unpleasant
+        case -0.2...0.2: return .neutral
+        case 0.2...0.6: return .pleasant
+        default: return .veryPleasant
+        }
     }
 }
 

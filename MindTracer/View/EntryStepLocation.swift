@@ -9,52 +9,77 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-struct MapPin: Identifiable {
-    let id = UUID()
-    let coordinate: CLLocationCoordinate2D
-}
-
 struct EntryStepLocation: View {
+
+    @Binding var timestamp: Date
     @Binding var coordinate: CLLocationCoordinate2D?
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.0090),
-        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-    )
+    @Binding var kind: MindStateKind
+    @Binding var valence: Double
+    @Binding var labels: Set<MindFeeling>
+    @Binding var associations: Set<MindContext>
+    @Binding var showEntrySheet: Bool
     
+    @State private var cameraPosition: MapCameraPosition = .automatic
+    @State private var isEntryStepMindStatePresented: Bool = false
+
     var body: some View {
-        VStack {
-            // Only one optional pin
-            let pins = coordinate.map { [MapPin(coordinate: $0)] } ?? []
-            
-            Map(
-                coordinateRegion: $region,
-                interactionModes: .all,
-                showsUserLocation: true,
-                annotationItems: pins
-            ) { item in
-                MapAnnotation(coordinate: item.coordinate) {
-                    Image(systemName: "mappin.circle.fill")
-                        .foregroundColor(.red)
-                        .font(.title)
+        VStack(spacing: 16) {
+
+            Map(position: $cameraPosition) {
+                if let coordinate {
+                    Annotation("Selected Location", coordinate: coordinate) {
+                        Image(systemName: "mappin.circle.fill")
+                            .font(.title)
+                            .foregroundStyle(.red)
+                    }
                 }
             }
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+            }
             .frame(height: 300)
-            
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+
             Button("Use Current Location") {
                 Task {
                     if let loc = await LocationManager.shared.getCurrentLocation() {
                         coordinate = loc.coordinate
-                        region.center = loc.coordinate
+                        cameraPosition = .region(
+                            MKCoordinateRegion(
+                                center: loc.coordinate,
+                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                            )
+                        )
                     } else {
-                        // Simulator fallback
+                        // Simulator-safe fallback
                         let dummy = CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.0090)
                         coordinate = dummy
-                        region.center = dummy
+                        cameraPosition = .region(
+                            MKCoordinateRegion(
+                                center: dummy,
+                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                            )
+                        )
                     }
+                    isEntryStepMindStatePresented = true
                 }
             }
-            .padding()
+            .buttonStyle(.borderedProminent)
         }
+        .padding()
         .navigationTitle("Location")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $isEntryStepMindStatePresented) {
+            EntryStepMindState(
+                kind: $kind,
+                valence: $valence,
+                labels: $labels,
+                associations: $associations,
+                timestamp: $timestamp,
+                coordinate: $coordinate,
+                showEntrySheet: $showEntrySheet
+            )
+        }
     }
 }

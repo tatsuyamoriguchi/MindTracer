@@ -13,7 +13,7 @@ struct HomeView: View {
     
     @State private var summary: MindStateSummary?
     @State private var wisdomMessage: String = "Loading..."
-    @State private var showEntrySheet = false
+    @State var showEntrySheet = false
 
     
     var body: some View {
@@ -60,7 +60,7 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showEntrySheet) {
-                MindStateEntryFlow()
+                MindStateEntryFlow(showEntrySheet: $showEntrySheet)
             }
         }
     }
