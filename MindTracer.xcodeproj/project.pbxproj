@@ -154,6 +154,8 @@
 				INFOPLIST_FILE = MindTracer/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mind Tracer";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind Tracer reads your State of Mind from Health app to display mood summaries.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind Tracer may record your mood to Health app for tracking purposes.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -197,6 +199,8 @@
 				INFOPLIST_FILE = MindTracer/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mind Tracer";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind Tracer reads your State of Mind from Health app to display mood summaries.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind Tracer may record your mood to Health app for tracking purposes.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
