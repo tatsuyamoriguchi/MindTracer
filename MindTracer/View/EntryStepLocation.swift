@@ -10,7 +10,7 @@ import MapKit
 import CoreLocation
 
 struct EntryStepLocation: View {
-
+    
     @Binding var timestamp: Date
     @Binding var coordinate: CLLocationCoordinate2D?
     @Binding var kind: MindStateKind
@@ -21,16 +21,29 @@ struct EntryStepLocation: View {
     
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var isEntryStepMindStatePresented: Bool = false
-
+    
     var body: some View {
         VStack(spacing: 16) {
-
-            Map(position: $cameraPosition) {
-                if let coordinate {
-                    Annotation("Selected Location", coordinate: coordinate) {
-                        Image(systemName: "mappin.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.red)
+            
+            MapReader { proxy in
+                Map(position: $cameraPosition, interactionModes: .all) {
+                    if let coordinate {
+                        Annotation("Selected Location", coordinate: coordinate) {
+                            Image(systemName: "mappin.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+                .onTapGesture { point in
+                    if let mapCoordinate = proxy.convert(point, from: .local) {
+                        coordinate = mapCoordinate
+                        cameraPosition = .region(
+                            MKCoordinateRegion(
+                                center: mapCoordinate,
+                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                            )
+                        )
                     }
                 }
             }
@@ -40,7 +53,7 @@ struct EntryStepLocation: View {
             }
             .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-
+            
             Button("Use Current Location") {
                 Task {
                     if let loc = await LocationManager.shared.getCurrentLocation() {
@@ -67,6 +80,21 @@ struct EntryStepLocation: View {
             }
             .buttonStyle(.borderedProminent)
         }
+        .onAppear {
+            Task {
+                if let loc = await LocationManager.shared.getCurrentLocation() {
+                    coordinate = loc.coordinate
+                    cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: loc.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                        )
+                    )
+                }
+            }
+        }
+        
+        
         .padding()
         .navigationTitle("Location")
         .navigationBarTitleDisplayMode(.inline)
