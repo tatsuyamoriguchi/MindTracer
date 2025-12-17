@@ -21,95 +21,23 @@ struct EntryStepLocation: View {
     
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var isEntryStepMindStatePresented: Bool = false
-    
     @State private var savedLocations: [MindStateLocation] = []
     @State private var locationName: String? = ""
-
+    @State private var selectedLocation: MindStateLocation?
+    
     
     var body: some View {
         VStack(spacing: 16) {
+            mapView
+                .frame(height: 300)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             
-            MapReader { proxy in
-                Map(position: $cameraPosition, interactionModes: .all) {
-//                    if let coordinate {
-//                        Annotation("Selected Location", coordinate: coordinate) {
-//                            Image(systemName: "mappin.circle.fill")
-//                                .font(.title)
-//                                .foregroundStyle(.red)
-//                        }
-//                    }
-                    mapAnnotations()
-                }
-                .onTapGesture { point in
-                    if let mapCoordinate = proxy.convert(point, from: .local) {
-                        coordinate = mapCoordinate
-                        cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: mapCoordinate,
-                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                            )
-                        )
-                        // Optional: clear previous locationName to let user enter a new one
-                        locationName = ""
-                    }
-                }
-            }
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
-            }
-            .frame(height: 300)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            locationNameTextField
             
-            // TextField to enter or edit location name
-            TextField("Enter Location Name", text: $locationName?)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal)
-//            TextField("Enter Location Name", text: Binding(
-//                get: { locationName ?? "" },
-//                set: { locationName = $0 }
-//            ))
-//            .textFieldStyle(.roundedBorder)
-//            .padding(.horizontal)
+            useLocationButton
             
-            
-            Button("Use This Location") {
-                saveEntry()
-                isEntryStepMindStatePresented = true
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(coordinate == nil)
-            
-            if !savedLocations.isEmpty {
-                Menu("Recent Locations") {
-                    ForEach(savedLocations) { location in
-//                        Button(location.id) { // or use a friendly display name if available
-//                            selectLocation(location)
-//                        }
-                        Button(location.entries.last?.locationName ?? location.id) {
-                            selectLocation(location)
-                        }
-                    }
-                }
-                .padding(.top, 8)
-            }
+            savedLocationsList
         }
-        .onAppear {
-            Task {
-                // Load previously saved locations from JSON
-                savedLocations = loadSavedLocations()
-                
-                if coordinate == nil, let loc = await LocationManager.shared.getCurrentLocation() {
-                    coordinate = loc.coordinate
-                    cameraPosition = .region(
-                        MKCoordinateRegion(
-                            center: loc.coordinate,
-                            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                        )
-                    )
-                }
-            }
-        }        
         .padding()
         .navigationTitle("Location")
         .navigationBarTitleDisplayMode(.inline)
@@ -125,9 +53,45 @@ struct EntryStepLocation: View {
                 locationName: $locationName
             )
         }
+        .task {
+            savedLocations = loadSavedLocations()
+            if coordinate == nil, let loc = await LocationManager.shared.getCurrentLocation() {
+                coordinate = loc.coordinate
+                cameraPosition = .region(
+                    MKCoordinateRegion(
+                        center: loc.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    )
+                )
+            }
+        }
+        
     }
     
-    @ViewBuilder
+    private var mapView: some View {
+        MapReader { proxy in
+            Map(position: $cameraPosition, interactionModes: .all) {
+                mapAnnotations()
+            }
+            .onTapGesture { point in
+                if let mapCoordinate = proxy.convert(point, from: .local) {
+                    coordinate = mapCoordinate
+                    cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: mapCoordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                        )
+                    )
+                }
+            }
+        }
+        .mapControls {
+            MapUserLocationButton()
+            MapCompass()
+        }
+    }
+    
+    @MapContentBuilder
     private func mapAnnotations() -> some MapContent {
         if let coordinate {
             Annotation("Selected Location", coordinate: coordinate) {
@@ -146,104 +110,136 @@ struct EntryStepLocation: View {
             }
         }
     }
-
-//    func selectLocation(_ location: MindStateLocation) {
-//        coordinate = location.coordinate
-//        locationName = location.entries.last?.locationName ?? "Selected Place"
-//        cameraPosition = .region(
-//            MKCoordinateRegion(
-//                center: location.coordinate,
-//                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-//            )
-//        )
-//        
-//        guard let coordinate else { return }
-//        
-//        let entry = MindStateEntry(
-//            timestamp: timestamp,
-//            kind: kind,
-//            valence: valence,
-//            feelings: Array(labels),
-//            contexts: Array(associations),
-//            location: coordinate,
-//            locationName: locationName
-//        )
-//        
-//        if let index = savedLocations.firstIndex(where: { $0.id == "\(coordinate.latitude),\(coordinate.longitude)" }) {
-//            var loc = savedLocations[index]
-//            loc.entries.append(entry)
-//            savedLocations[index] = loc
-//        } else {
-//            let newLocation = MindStateLocation(
-//                id: "\(coordinate.latitude),\(coordinate.longitude)",
-//                coordinate: coordinate,
-//                entries: [entry]
-//            )
-//            savedLocations.insert(newLocation, at: 0)
-//        }
-//        
-//        // Persist savedLocations if needed
-//    }
-    private func selectLocation(_ location: MindStateLocation) {
-            coordinate = location.coordinate
-            locationName = location.entries.last?.locationName ?? "Selected Place"
-            cameraPosition = .region(
-                MKCoordinateRegion(
-                    center: location.coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                )
-            )
+    private var locationNameTextField: some View {
+            TextField("Enter Location Name", text: Binding(
+                get: { locationName ?? "" },
+                set: { locationName = $0 }
+            ))
+            .textFieldStyle(.roundedBorder)
+            .padding(.horizontal)
         }
+        
+    private var useLocationButton: some View {
+        Button("Use This Location") {
+            saveEntry()
+            isEntryStepMindStatePresented = true
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(coordinate == nil)
+    }
+        
+//    @ViewBuilder
+//    private var recentLocationsMenu: some View {
+//        if !savedLocations.isEmpty {
+//            Menu("Recent Locations") {
+//                ForEach(savedLocations) { location in
+//                    Button(location.id) { selectLocation(location) }
+//                }
+//            }
+//        }
+//        // If empty, nothing is shown automatically
+//    }
+    
+    @ViewBuilder
+    private var savedLocationsList: some View {
+        if !savedLocations.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Saved Locations")
+                    .font(.headline)
+                    .padding(.horizontal)
+                
+                ScrollView {
+                    VStack(spacing: 4) {
+                        ForEach(savedLocations) { location in
+                            Button(action: {
+                                selectLocation(location)
+                            }) {
+                                HStack {
+                                    Image(systemName: "mappin.circle.fill")
+                                        .foregroundColor(location.id == selectedLocation?.id ? .red : .blue)
+                                    Text(location.entries.last?.locationName ?? "Unknown")
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                }
+                                .padding(.horizontal)
+                                .padding(.vertical, 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.gray.opacity(location.id == selectedLocation?.id ? 0.2 : 0.05))
+                                )
+                            }
+                        }
+                    }
+                }
+                .frame(maxHeight: 200)
+            }
+            .padding(.vertical)
+        }
+    }
+
+    
+    
+    private func selectLocation(_ location: MindStateLocation) {
+        coordinate = location.coordinate.clLocationCoordinate2D
+        locationName = location.entries.last?.locationName ?? "Selected Place"
+        cameraPosition = .region(
+            MKCoordinateRegion(
+                center: location.coordinate.clLocationCoordinate2D,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+        )
+        selectedLocation = location
+    }
     
     private func saveEntry() {
-            guard let coordinate else { return }
-            let entry = MindStateEntry(
-                timestamp: timestamp,
-                kind: kind,
-                valence: valence,
-                feelings: Array(labels),
-                contexts: Array(associations),
-                location: coordinate,
-                locationName: locationName
+        guard let coordinate else { return }
+        let entry = MindStateEntry(
+            timestamp: timestamp,
+            kind: kind,
+            valence: valence,
+            feelings: Array(labels),
+            contexts: Array(associations),
+            location: coordinate,
+            locationName: locationName
+        )
+        
+        if let index = savedLocations.firstIndex(where: { $0.id == "\(coordinate.latitude),\(coordinate.longitude)" }) {
+            var loc = savedLocations[index]
+            loc.entries.append(entry)
+            savedLocations[index] = loc
+        } else {
+            let newLocation = MindStateLocation(
+                id: "\(coordinate.latitude),\(coordinate.longitude)",
+                coordinate: coordinate,
+                entries: [entry]
             )
-            
-            if let index = savedLocations.firstIndex(where: { $0.id == "\(coordinate.latitude),\(coordinate.longitude)" }) {
-                var loc = savedLocations[index]
-                loc.entries.append(entry)
-                savedLocations[index] = loc
-            } else {
-                let newLocation = MindStateLocation(
-                    id: "\(coordinate.latitude),\(coordinate.longitude)",
-                    coordinate: coordinate,
-                    entries: [entry]
-                )
-                savedLocations.insert(newLocation, at: 0)
-            }
-            
-            saveLocations()
+            savedLocations.insert(newLocation, at: 0)
         }
         
-        // MARK: - JSON Persistence
-        
-        private func loadSavedLocations() -> [MindStateLocation] {
-            let url = getSavedLocationsURL()
-            guard let data = try? Data(contentsOf: url),
-                  let locations = try? JSONDecoder().decode([MindStateLocation].self, from: data) else {
-                return []
-            }
-            return locations
+        saveLocations()
+    }
+    
+    // MARK: - JSON Persistence
+    
+    private func loadSavedLocations() -> [MindStateLocation] {
+        let url = getSavedLocationsURL()
+        guard let data = try? Data(contentsOf: url),
+              let locations = try? JSONDecoder().decode([MindStateLocation].self, from: data) else {
+            return []
         }
-        
-        private func saveLocations() {
-            let url = getSavedLocationsURL()
-            if let data = try? JSONEncoder().encode(savedLocations) {
-                try? data.write(to: url)
-            }
+        return locations
+    }
+    
+    private func saveLocations() {
+        let url = getSavedLocationsURL()
+        if let data = try? JSONEncoder().encode(savedLocations) {
+            try? data.write(to: url)
         }
-        
-        private func getSavedLocationsURL() -> URL {
-            let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            return docDir.appendingPathComponent("SavedLocations.json")
-        }
-
+    }
+    
+    private func getSavedLocationsURL() -> URL {
+        let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        return docDir.appendingPathComponent("SavedLocations.json")
+    }
+    
 }
