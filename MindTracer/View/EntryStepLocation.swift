@@ -91,54 +91,6 @@ struct EntryStepLocation: View {
         }
     }
     
-//    @MapContentBuilder
-//    private func mapAnnotations() -> some MapContent {
-//        
-//        // Selected coordinate (user just tapped or current location)
-//        if let coordinate {
-//            Annotation("Selected Location", coordinate: coordinate) {
-//                VStack(spacing: 4) {
-//                    if let name = locationName, !name.isEmpty {
-//                        Text(name)
-//                            .font(.caption)
-//                            .bold()
-//                            .padding(4)
-//                            .background(Color.white.opacity(0.8))
-//                            .cornerRadius(6)
-//                            .shadow(radius: 2)
-//                    }
-//                    Image(systemName: "mappin.circle.fill")
-//                        .font(.title)
-//                        .foregroundStyle(.red)
-//                }
-//            }
-//        }
-//        
-//        // Saved locations
-//        ForEach(savedLocations) { location in
-//            Annotation(location.entries.last?.locationName ?? "Unknown", coordinate: location.coordinate.clLocationCoordinate2D) {
-//                VStack(spacing: 4) {
-//                    Text(location.entries.last?.locationName ?? "Unknown")
-//                        .font(.caption)
-//                        .bold()
-//                        .padding(4)
-//                        .background(Color.white.opacity(0.8))
-//                        .cornerRadius(6)
-//                        .shadow(radius: 2)
-//                    
-//                    Image(systemName: "mappin.circle.fill")
-//                        .font(.title)
-//                        .foregroundStyle(location.id == selectedLocation?.id ? .red : .blue)
-//                        .onTapGesture {
-//                            selectedLocation = location
-//                            coordinate = location.coordinate.clLocationCoordinate2D
-//                            locationName = location.entries.last?.locationName
-//                        }
-//                }
-//            }
-//        }
-//    }
-    
     @MapContentBuilder
     private func mapAnnotations() -> some MapContent {
 
@@ -195,6 +147,42 @@ struct EntryStepLocation: View {
         .disabled(coordinate == nil)
     }
         
+//    @ViewBuilder
+//    private var savedLocationsList: some View {
+//        if !savedLocations.isEmpty {
+//            VStack(alignment: .leading, spacing: 8) {
+//                Text("Saved Locations")
+//                    .font(.headline)
+//                    .padding(.horizontal)
+//                
+//                ScrollView {
+//                    VStack(spacing: 4) {
+//                        ForEach(savedLocations) { location in
+//                            Button(action: {
+//                                selectLocation(location)
+//                            }) {
+//                                HStack {
+//                                    Image(systemName: "mappin.circle.fill")
+//                                        .foregroundColor(location.id == selectedLocation?.id ? .red : .blue)
+//                                    Text(location.entries.last?.locationName ?? "Unknown")
+//                                        .foregroundColor(.primary)
+//                                    Spacer()
+//                                }
+//                                .padding(.horizontal)
+//                                .padding(.vertical, 4)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 8)
+//                                        .fill(Color.gray.opacity(location.id == selectedLocation?.id ? 0.2 : 0.05))
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//                .frame(maxHeight: 200)
+//            }
+//            .padding(.vertical)
+//        }
+//    }
     @ViewBuilder
     private var savedLocationsList: some View {
         if !savedLocations.isEmpty {
@@ -202,30 +190,28 @@ struct EntryStepLocation: View {
                 Text("Saved Locations")
                     .font(.headline)
                     .padding(.horizontal)
-                
-                ScrollView {
-                    VStack(spacing: 4) {
-                        ForEach(savedLocations) { location in
-                            Button(action: {
-                                selectLocation(location)
-                            }) {
-                                HStack {
-                                    Image(systemName: "mappin.circle.fill")
-                                        .foregroundColor(location.id == selectedLocation?.id ? .red : .blue)
-                                    Text(location.entries.last?.locationName ?? "Unknown")
-                                        .foregroundColor(.primary)
-                                    Spacer()
-                                }
-                                .padding(.horizontal)
-                                .padding(.vertical, 4)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.gray.opacity(location.id == selectedLocation?.id ? 0.2 : 0.05))
+
+                List {
+                    ForEach(savedLocations) { location in
+                        HStack {
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundColor(
+                                    location.id == selectedLocation?.id ? .red : .blue
                                 )
-                            }
+
+                            Text(location.entries.last?.locationName ?? "Unknown")
+                                .foregroundColor(.primary)
+
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            selectLocation(location)
                         }
                     }
+                    .onDelete(perform: deleteLocations)
                 }
+                .listStyle(.plain)
                 .frame(maxHeight: 200)
             }
             .padding(.vertical)
@@ -233,18 +219,22 @@ struct EntryStepLocation: View {
     }
 
     
+    private func deleteLocations(at offsets: IndexSet) {
+        // Clear selection if deleted
+        if let selected = selectedLocation,
+           offsets.contains(where: { savedLocations[$0].id == selected.id }) {
+            selectedLocation = nil
+            coordinate = nil
+            locationName = nil
+        }
+
+        savedLocations.remove(atOffsets: offsets)
+        saveLocations()
+    }
+
     
-//    private func selectLocation(_ location: MindStateLocation) {
-//        coordinate = location.coordinate.clLocationCoordinate2D
-//        locationName = location.entries.last?.locationName ?? "Selected Place"
-//        cameraPosition = .region(
-//            MKCoordinateRegion(
-//                center: location.coordinate.clLocationCoordinate2D,
-//                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-//            )
-//        )
-//        selectedLocation = location
-//    }
+
+
     private func selectLocation(_ location: MindStateLocation) {
         selectedLocation = location
         coordinate = location.coordinate.clLocationCoordinate2D
