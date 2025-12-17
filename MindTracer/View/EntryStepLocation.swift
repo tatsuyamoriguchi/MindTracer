@@ -54,35 +54,45 @@ struct EntryStepLocation: View {
             .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             
-            Button("Use Current Location") {
-                Task {
-                    if let loc = await LocationManager.shared.getCurrentLocation() {
-                        coordinate = loc.coordinate
-                        cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: loc.coordinate,
-                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                            )
-                        )
-                    } else {
-                        // Simulator-safe fallback
-                        let dummy = CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.0090)
-                        coordinate = dummy
-                        cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: dummy,
-                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                            )
-                        )
-                    }
-                    isEntryStepMindStatePresented = true
-                }
+            Button("Use This Location") {
+                isEntryStepMindStatePresented = true
             }
             .buttonStyle(.borderedProminent)
+            .disabled(coordinate == nil)
+
+            
+//            Button("Use This Location") {
+//                
+//                Task {
+//                    if let loc = await LocationManager.shared.getCurrentLocation() {
+//                        coordinate = loc.coordinate
+//                        cameraPosition = .region(
+//                            MKCoordinateRegion(
+//                                center: loc.coordinate,
+//                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+//                            )
+//                        )
+//                    } else {
+//                        // Simulator-safe fallback
+//                        let dummy = CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.0090)
+//                        coordinate = dummy
+//                        cameraPosition = .region(
+//                            MKCoordinateRegion(
+//                                center: dummy,
+//                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+//                            )
+//                        )
+//                    }
+//                    isEntryStepMindStatePresented = true
+//                }
+//            }
+//            .buttonStyle(.borderedProminent)
+//            .disabled(coordinate == nil)
+            
         }
         .onAppear {
             Task {
-                if let loc = await LocationManager.shared.getCurrentLocation() {
+                if coordinate == nil, let loc = await LocationManager.shared.getCurrentLocation() {
                     coordinate = loc.coordinate
                     cameraPosition = .region(
                         MKCoordinateRegion(
