@@ -116,4 +116,19 @@ extension MindStateStore {
     }
 }
 
+extension MindStateStore {
+    func deleteEntries(at offsets: IndexSet, for location: MindStateLocation) {
+        // Find entries in the store that match the entries being shown for this location
+        let entryIDsToDelete = offsets.map { location.entries[$0].id }
+
+        // Remove from the underlying entries array
+        entries.removeAll { entryIDsToDelete.contains($0.id) }
+
+        save() // persist the change
+    }
+}
+
+
+
+
 

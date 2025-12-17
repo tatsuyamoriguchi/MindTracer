@@ -13,3 +13,4 @@ enum ValenceClassification: String, Codable, CaseIterable {
     case pleasant
     case veryPleasant
 }
+

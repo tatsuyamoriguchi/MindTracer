@@ -86,6 +86,8 @@ struct EntryStepMindState: View {
                 print("New MindStateEntry:", entry)
                 showEntrySheet = false
             }
+            Text("You could have valence = 0.3 → pleasant But MindFeeling might include [happy, anxious] The user feels both happy and a little anxious. Valence gives the overall \"pleasantness\", but feelings capture nuance. They don't strictly conflict — even though unpleasant and happy seem opposite, a user might have mixed emotions. Valence is continuous; feelings are tags.")
+                .font(.caption)
         }
         .navigationTitle("Mind State")
         .navigationBarTitleDisplayMode(.inline)

@@ -84,6 +84,16 @@ struct EntryStepLocation: View {
                     )
                 }
             }
+            .task {
+                if let location = await LocationManager.shared.getCurrentLocation() {
+                    cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: location.coordinate,
+                            span: .init(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                        )
+                    )
+                }
+            }
         }
         .mapControls {
             MapUserLocationButton()
@@ -146,43 +156,7 @@ struct EntryStepLocation: View {
         .buttonStyle(.borderedProminent)
         .disabled(coordinate == nil)
     }
-        
-//    @ViewBuilder
-//    private var savedLocationsList: some View {
-//        if !savedLocations.isEmpty {
-//            VStack(alignment: .leading, spacing: 8) {
-//                Text("Saved Locations")
-//                    .font(.headline)
-//                    .padding(.horizontal)
-//                
-//                ScrollView {
-//                    VStack(spacing: 4) {
-//                        ForEach(savedLocations) { location in
-//                            Button(action: {
-//                                selectLocation(location)
-//                            }) {
-//                                HStack {
-//                                    Image(systemName: "mappin.circle.fill")
-//                                        .foregroundColor(location.id == selectedLocation?.id ? .red : .blue)
-//                                    Text(location.entries.last?.locationName ?? "Unknown")
-//                                        .foregroundColor(.primary)
-//                                    Spacer()
-//                                }
-//                                .padding(.horizontal)
-//                                .padding(.vertical, 4)
-//                                .background(
-//                                    RoundedRectangle(cornerRadius: 8)
-//                                        .fill(Color.gray.opacity(location.id == selectedLocation?.id ? 0.2 : 0.05))
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//                .frame(maxHeight: 200)
-//            }
-//            .padding(.vertical)
-//        }
-//    }
+
     @ViewBuilder
     private var savedLocationsList: some View {
         if !savedLocations.isEmpty {

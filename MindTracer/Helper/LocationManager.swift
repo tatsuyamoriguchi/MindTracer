@@ -6,11 +6,17 @@
 //
 
 import CoreLocation
+import Combine
 
-final class LocationManager: NSObject, CLLocationManagerDelegate {
+
+final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+
     static let shared = LocationManager()
-    
+
     private let manager = CLLocationManager()
+
+    @Published var location: CLLocation?
+
     private var continuation: CheckedContinuation<CLLocation?, Never>?
 
     private override init() {
@@ -19,32 +25,60 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
         manager.desiredAccuracy = kCLLocationAccuracyBest
     }
 
-    func requestAuthorization() {
-        manager.requestWhenInUseAuthorization()
+    
+    func getCurrentLocation() async -> CLLocation? {
+            let status = manager.authorizationStatus
+
+            // 🚫 Do NOT request location yet
+            if status == .notDetermined {
+                manager.requestWhenInUseAuthorization()
+                return nil
+            }
+
+            // 🚫 Permission denied
+            if status == .denied || status == .restricted {
+                return nil
+            }
+
+            return await withCheckedContinuation { continuation in
+                self.continuation = continuation
+                manager.requestLocation()
+            }
+        }
+
+    // MARK: - CLLocationManagerDelegate
+
+    func locationManager(
+        _ manager: CLLocationManager,
+        didUpdateLocations locations: [CLLocation]
+    ) {
+        let loc = locations.first
+        Task { @MainActor in
+            self.location = loc
+            self.continuation?.resume(returning: loc)
+            self.continuation = nil
+        }
     }
 
-    func getCurrentLocation() async -> CLLocation? {
-        requestAuthorization()
-        return await withCheckedContinuation { continuation in
-            self.continuation = continuation
+    func locationManager(
+        _ manager: CLLocationManager,
+        didFailWithError error: Error
+    ) {
+        Task { @MainActor in
+            print("Location error:", error)
+            self.continuation?.resume(returning: nil)
+            self.continuation = nil
+        }
+    }
+
+    func locationManagerDidChangeAuthorization(
+        _ manager: CLLocationManager
+    ) {
+        let status = manager.authorizationStatus
+        
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
             manager.requestLocation()
         }
     }
-
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        Task { @MainActor in
-            continuation?.resume(returning: locations.first)
-            continuation = nil
-        }
-    }
-
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        Task { @MainActor in
-            print("Location error:", error)
-            continuation?.resume(returning: nil)
-            continuation = nil
-        }
-    }
 }
-
 
