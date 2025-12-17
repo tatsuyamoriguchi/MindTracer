@@ -43,15 +43,3 @@ struct EntryStepDateTime: View {
         }
     }
 }
-
-/*
-             EntryStepLocation(
-                 timestamp: $timestamp,
-                 coordinate: $coordinate,
-                 kind: $kind,
-                 valence: $valence,
-                 labels: $labels,
-                 associations: $associations
-             )
-
- */

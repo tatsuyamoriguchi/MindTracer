@@ -18,15 +18,16 @@ struct ContentView: View {
                     Label("Analysis", systemImage: "chart.xyaxis.line")
                 }
 
+            InfoView()
+                .tabItem {
+                    Label("Info", systemImage: "info.circle")
+                }
+
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
 
-            InfoView()
-                .tabItem {
-                    Label("Info", systemImage: "info.circle")
-                }
         }
     }
 }

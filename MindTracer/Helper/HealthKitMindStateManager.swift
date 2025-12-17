@@ -61,6 +61,7 @@ extension HealthKitMindStateManager {
                 feelings: [.stressed],
                 contexts: [.work],
                 location: nil,
+                locationName: nil,
                 metadata: nil
             ),
             MindStateEntry(
@@ -71,6 +72,7 @@ extension HealthKitMindStateManager {
                 feelings: [.content],
                 contexts: [.family],
                 location: nil,
+                locationName: nil,
                 metadata: nil
             ),
             MindStateEntry(
@@ -81,6 +83,7 @@ extension HealthKitMindStateManager {
                 feelings: [.happy],
                 contexts: [.family],
                 location: nil,
+                locationName: nil,
                 metadata: nil
             )
         ]

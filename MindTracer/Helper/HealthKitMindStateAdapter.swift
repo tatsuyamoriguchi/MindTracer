@@ -86,7 +86,7 @@ extension MindStateEntry {
             feelings: feelings,
             contexts: contexts,
             location: nil,
-            metadata: nil
+            locationName: nil, metadata: nil
         )
     }
 }

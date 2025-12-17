@@ -16,8 +16,10 @@ struct EntryStepMindState: View {
     @Binding var timestamp: Date
     @Binding var coordinate: CLLocationCoordinate2D?
     @Binding var showEntrySheet: Bool
+    @Binding var locationName: String?
     
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var store: MindStateStore
     
     var body: some View {
         Form {
@@ -76,11 +78,13 @@ struct EntryStepMindState: View {
                     valence: valence,
                     feelings: Array(labels),
                     contexts: Array(associations),
-                    location: coordinate
+                    location: coordinate, locationName: locationName
                 )
+                
+                store.add(entry)
+
                 print("New MindStateEntry:", entry)
                 showEntrySheet = false
-//                dismiss()
             }
         }
         .navigationTitle("Mind State")

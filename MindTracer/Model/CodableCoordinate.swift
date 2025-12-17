@@ -9,7 +9,7 @@
 import Foundation
 import CoreLocation
 
-struct CodableCoordinate: Codable, Equatable {
+struct CodableCoordinate: Codable, Equatable, Hashable {
     let latitude: Double
     let longitude: Double
 
@@ -27,3 +27,10 @@ struct CodableCoordinate: Codable, Equatable {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }
+
+extension CodableCoordinate {
+    var roundedKey: String {
+        "\(round(latitude * 1000) / 1000),\(round(longitude * 1000) / 1000)"
+    }
+}
+
