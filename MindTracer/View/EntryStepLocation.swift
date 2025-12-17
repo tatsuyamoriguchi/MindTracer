@@ -93,23 +93,75 @@ struct EntryStepLocation: View {
     
     @MapContentBuilder
     private func mapAnnotations() -> some MapContent {
+        
+        // Selected coordinate (user just tapped or current location)
         if let coordinate {
             Annotation("Selected Location", coordinate: coordinate) {
-                Image(systemName: "mappin.circle.fill")
-                    .font(.title)
-                    .foregroundStyle(.red)
+                VStack(spacing: 4) {
+                    if let name = locationName, !name.isEmpty {
+                        Text(name)
+                            .font(.caption)
+                            .bold()
+                            .padding(4)
+                            .background(Color.white.opacity(0.8))
+                            .cornerRadius(6)
+                            .shadow(radius: 2)
+                    }
+                    
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.title)
+                        .foregroundStyle(.red)
+                }
             }
         }
         
+        // Saved locations
         ForEach(savedLocations) { location in
-            Annotation("", coordinate: location.coordinate.clLocationCoordinate2D) {
-                Image(systemName: "mappin.circle.fill")
-                    .font(.title)
-                    .foregroundStyle(location.id == selectedLocation?.id ? .red : .blue)
-                    .onTapGesture { selectedLocation = location }
+            Annotation(location.entries.last?.locationName ?? "Unknown", coordinate: location.coordinate.clLocationCoordinate2D) {
+                VStack(spacing: 4) {
+                    Text(location.entries.last?.locationName ?? "Unknown")
+                        .font(.caption)
+                        .bold()
+                        .padding(4)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(6)
+                        .shadow(radius: 2)
+                    
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.title)
+                        .foregroundStyle(location.id == selectedLocation?.id ? .red : .blue)
+                        .onTapGesture {
+                            selectedLocation = location
+                            coordinate = location.coordinate.clLocationCoordinate2D
+                            locationName = location.entries.last?.locationName
+                        }
+                }
             }
         }
     }
+
+    
+//    @MapContentBuilder
+//    private func mapAnnotations() -> some MapContent {
+//        
+//        if let coordinate {
+//            Annotation("Selected Location", coordinate: coordinate) {
+//                Image(systemName: "mappin.circle.fill")
+//                    .font(.title)
+//                    .foregroundStyle(.red)
+//            }
+//        }
+//        
+//        ForEach(savedLocations) { location in
+//            Annotation("", coordinate: location.coordinate.clLocationCoordinate2D) {
+//                Image(systemName: "mappin.circle.fill")
+//                    .font(.title)
+//                    .foregroundStyle(location.id == selectedLocation?.id ? .red : .blue)
+//                    .onTapGesture { selectedLocation = location }
+//            }
+//        }
+//    }
+    
     private var locationNameTextField: some View {
             TextField("Enter Location Name", text: Binding(
                 get: { locationName ?? "" },
