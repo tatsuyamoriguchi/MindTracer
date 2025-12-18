@@ -74,8 +74,8 @@ struct AnalysisView: View {
         // Compute the start date for the selected range, aligned to calendar days
         let startDate: Date? = {
             switch range {
-            case .today:
-                return calendar.startOfDay(for: now)
+            case .past8Hours:
+                return calendar.date(byAdding: .hour, value: -8, to: now)
             case .past3Days:
                 return calendar.startOfDay(for: calendar.date(byAdding: .day, value: -3, to: now)!)
             case .past7Days:
@@ -91,11 +91,30 @@ struct AnalysisView: View {
             }
         }()
 
+        
+        // Debug
+//        if range == .past8Hours {
+//            for entry in entries {
+//                print("ENTRY:", entry.timestamp,
+//                      " startOfDay:", calendar.startOfDay(for: now),
+//                      " passes:", entry.timestamp >= calendar.startOfDay(for: now))
+//            }
+//        }
+        if range == .past8Hours {
+            print("START DATE:", startDate!)
+            for entry in entries {
+                print("ENTRY:", entry.timestamp,
+                      " passes:", entry.timestamp >= startDate!)
+            }
+        }
+
+        
         // Filter entries based on startDate and user-selected filters
         return entries
             .filter { entry in
                 // Convert UTC timestamp to local time for filtering
-                let localTimestamp = entry.timestamp.addingTimeInterval(TimeInterval(TimeZone.current.secondsFromGMT(for: entry.timestamp)))
+//                let localTimestamp = entry.timestamp.addingTimeInterval(TimeInterval(TimeZone.current.secondsFromGMT(for: entry.timestamp)))
+//                return startDate == nil || localTimestamp >= startDate!
                 return startDate == nil || entry.timestamp >= startDate!
             }
             .filter { entry in selectedKind == nil || entry.kind == selectedKind }
@@ -106,18 +125,14 @@ struct AnalysisView: View {
 
     // MARK: - Aggregation
     private func aggregateEntries(_ entries: [MindStateEntry], for range: AnalysisTimeRange) -> [ValencePoint] {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
         
         switch range {
-        case .today:
+        case .past8Hours:
             // Hourly aggregation
             let grouped = Dictionary(grouping: entries) { entry in
-                calendar.date(
-                    bySettingHour: calendar.component(.hour, from: entry.timestamp),
-                    minute: 0,
-                    second: 0,
-                    of: entry.timestamp
-                )!
+                calendar.dateInterval(of: .hour, for: entry.timestamp)!.start
             }
             return grouped.compactMap { date, entries in
                 let avgValence = entries.map(\.valence).reduce(0, +) / Double(entries.count)
@@ -142,6 +157,9 @@ struct AnalysisView: View {
             Text("Valence Over Time")
                 .font(.headline)
             
+            // DEBUG
+//            let _ = print("VALENCE POINTS:", filteredAndAggregatedPoints)
+
             if filteredAndAggregatedPoints.isEmpty {
                 ContentUnavailableView(
                     "No Data",
@@ -154,6 +172,11 @@ struct AnalysisView: View {
                         x: .value("Time", point.date),
                         y: .value("Valence", point.valence)
                     )
+                    PointMark(
+                            x: .value("Time", point.date),
+                            y: .value("Valence", point.valence)
+                        )
+                    
                 }
                 .chartYScale(domain: -1...1)
                 .chartXAxis {
@@ -179,15 +202,15 @@ struct AnalysisView: View {
     // MARK: - X Axis
     private var xAxisTickCount: Int {
         switch selectedTimeRange {
-        case .today: return 6
-        default: return 6
+        case .past8Hours: return 8
+        default: return 8
         }
     }
     
     private func xAxisLabel(for date: Date) -> String {
         let formatter = DateFormatter()
         switch selectedTimeRange {
-        case .today: formatter.dateFormat = "HH:mm"
+        case .past8Hours: formatter.dateFormat = "HH:mm"
         case .past3Days, .past7Days, .past30Days, .past90Days: formatter.dateFormat = "MMM d"
         case .pastYear, .all: formatter.dateFormat = "MMM yyyy"
         }

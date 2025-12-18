@@ -49,7 +49,7 @@ struct MapView: View {
         .task {
             // Attempt to get the current location asynchronously
             if let location = await LocationManager.shared.getCurrentLocation() {
-                let miles: Double = 5
+                let miles: Double = 1
                 let meters = miles * 1609.34
                 let span = MKCoordinateSpan(
                     latitudeDelta: meters / 111_000,

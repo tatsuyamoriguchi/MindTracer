@@ -8,7 +8,7 @@
 import Foundation
 
 enum AnalysisTimeRange: String, CaseIterable, Identifiable {
-    case today
+    case past8Hours
     case past3Days
     case past7Days
     case past30Days
