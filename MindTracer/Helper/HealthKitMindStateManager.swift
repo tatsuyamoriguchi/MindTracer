@@ -79,9 +79,9 @@ extension HealthKitMindStateManager {
                 id: UUID(),
                 timestamp: Date(),
                 kind: .dailyMood,
-                valence: 0.25,
-                feelings: [.happy],
-                contexts: [.family],
+                valence: -0.3,
+                feelings: [.anxious],
+                contexts: [.finances],
                 location: nil,
                 locationName: nil,
                 metadata: nil

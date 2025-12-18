@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @StateObject private var mindStateStore = MindStateStore()
+    
     var body: some View {
         TabView {
             HomeView()
@@ -29,6 +32,7 @@ struct ContentView: View {
                 }
 
         }
+        .environmentObject(mindStateStore)
     }
 }
 
