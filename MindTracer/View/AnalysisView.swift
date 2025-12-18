@@ -29,11 +29,17 @@ struct AnalysisView: View {
                 
                 Picker("Time Range", selection: $selectedTimeRange) {
                     ForEach(AnalysisTimeRange.allCases) { range in
-                        Text(range.rawValue).tag(range)
+                        Text(range.displayName)
+                            .tag(range)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.center)
                     }
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
+              
+                // MARK: - Chart
+                valenceLineChart
                 
                 // MARK: - Summary Info
                 VStack(spacing: 8) {
@@ -43,9 +49,6 @@ struct AnalysisView: View {
                     Text("Newest: \(dates.last?.formatted() ?? "-")")
                 }
                 .padding(.horizontal)
-                
-                // MARK: - Chart
-                valenceLineChart
             }
         }
         .navigationTitle("Analysis")
