@@ -18,6 +18,8 @@ struct AnalysisView: View {
     
     @EnvironmentObject var store: MindStateStore
     
+    @State private var showingInfoAlert: Bool = false
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
@@ -42,13 +44,15 @@ struct AnalysisView: View {
                 valenceLineChart
                 
                 // MARK: - Summary Info
-                VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text("Total entries: \(store.entries.count)")
                     let dates = store.entries.map { $0.timestamp }.sorted()
                     Text("Oldest: \(dates.first?.formatted() ?? "-")")
                     Text("Newest: \(dates.last?.formatted() ?? "-")")
                 }
                 .padding(.horizontal)
+                .font(.caption)
+                                
             }
         }
         .navigationTitle("Analysis")
@@ -97,27 +101,17 @@ struct AnalysisView: View {
         
         // Debug
 //        if range == .past8Hours {
+//            print("START DATE:", startDate!)
 //            for entry in entries {
 //                print("ENTRY:", entry.timestamp,
-//                      " startOfDay:", calendar.startOfDay(for: now),
-//                      " passes:", entry.timestamp >= calendar.startOfDay(for: now))
+//                      " passes:", entry.timestamp >= startDate!)
 //            }
 //        }
-        if range == .past8Hours {
-            print("START DATE:", startDate!)
-            for entry in entries {
-                print("ENTRY:", entry.timestamp,
-                      " passes:", entry.timestamp >= startDate!)
-            }
-        }
 
         
         // Filter entries based on startDate and user-selected filters
         return entries
             .filter { entry in
-                // Convert UTC timestamp to local time for filtering
-//                let localTimestamp = entry.timestamp.addingTimeInterval(TimeInterval(TimeZone.current.secondsFromGMT(for: entry.timestamp)))
-//                return startDate == nil || localTimestamp >= startDate!
                 return startDate == nil || entry.timestamp >= startDate!
             }
             .filter { entry in selectedKind == nil || entry.kind == selectedKind }
@@ -157,12 +151,26 @@ struct AnalysisView: View {
     // MARK: - Chart View
     private var valenceLineChart: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Valence Over Time")
-                .font(.headline)
+            HStack {
+                Text("Valence Over Time")
+                    .font(.headline)
+                
+                
+                Button("", systemImage: "info.circle") {
+                    self.showingInfoAlert = true
+                }
+                .alert("What is Valence?", isPresented: $showingInfoAlert) {
+                    Button("OK") {
+                        self.showingInfoAlert = false
+                    }
+                } message: {
+                    Text("A measure of your mood—high means positive and happy, low means stressed or down. Track it over time to see patterns in your emotional well-being.")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                
+            }
             
-            // DEBUG
-//            let _ = print("VALENCE POINTS:", filteredAndAggregatedPoints)
-
             if filteredAndAggregatedPoints.isEmpty {
                 ContentUnavailableView(
                     "No Data",
@@ -206,7 +214,9 @@ struct AnalysisView: View {
     private var xAxisTickCount: Int {
         switch selectedTimeRange {
         case .past8Hours: return 8
-        default: return 8
+        case .past3Days: return 3
+        case .past7Days: return 7
+        default: return 6
         }
     }
     

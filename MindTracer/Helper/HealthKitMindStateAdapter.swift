@@ -76,7 +76,7 @@ extension MindStateEntry {
         }
 
         // 4. Location
-        let coordinate: CLLocationCoordinate2D? = nil
+//        let coordinate: CLLocationCoordinate2D? = nil
 
         // 5. Create entry
         self.init(

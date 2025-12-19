@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct MindTracerApp: App {
     @StateObject private var store = MindStateStore()
+        
     var body: some Scene {
         WindowGroup {
             ContentView()

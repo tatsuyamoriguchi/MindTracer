@@ -117,7 +117,7 @@ extension HealthKitMindStateManager {
                 self?.latestMindState = entry
             }
         }
-        
+
         healthStore.execute(query)
 #endif
     }

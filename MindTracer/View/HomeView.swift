@@ -70,15 +70,15 @@ extension HomeView {
     
     @MainActor
     private func loadData() async {
-        #if targetEnvironment(simulator)
-        // Simulator: skip HealthKit authorization
-        await mindStateManager.fetchLatestMindState()
-        
-        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries)
-        self.summary = computedSummary
-        self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-        
-        #else
+//        #if targetEnvironment(simulator)
+//        // Simulator: skip HealthKit authorization
+//        await mindStateManager.fetchLatestMindState()
+//        
+//        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries)
+//        self.summary = computedSummary
+//        self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+//        
+//        #else
         // Real device
         do {
             try await mindStateManager.requestAuthorization()
@@ -93,7 +93,7 @@ extension HomeView {
             self.wisdomMessage = "Unable to fetch mind state."
             print("HealthKit error:", error)
         }
-        #endif
+//        #endif
     }
 }
 
