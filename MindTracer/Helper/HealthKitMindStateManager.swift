@@ -53,39 +53,9 @@ extension HealthKitMindStateManager {
         
         // Dummy data for simulator
         let dummyEntries: [MindStateEntry] = [
-            MindStateEntry(
-                id: UUID(),
-                timestamp: Date().addingTimeInterval(-3600),
-                kind: .dailyMood,
-                valence: -0.3,
-                feelings: [.stressed],
-                contexts: [.work],
-                location: nil,
-                locationName: nil,
-                metadata: nil
-            ),
-            MindStateEntry(
-                id: UUID(),
-                timestamp: Date().addingTimeInterval(-1800),
-                kind: .dailyMood,
-                valence: 0.1,
-                feelings: [.content],
-                contexts: [.family],
-                location: nil,
-                locationName: nil,
-                metadata: nil
-            ),
-            MindStateEntry(
-                id: UUID(),
-                timestamp: Date(),
-                kind: .dailyMood,
-                valence: -0.3,
-                feelings: [.anxious],
-                contexts: [.finances],
-                location: nil,
-                locationName: nil,
-                metadata: nil
-            )
+            MindStateEntry(id: UUID(), timestamp: Date().addingTimeInterval(-3600), kind: .dailyMood, valence: 0.0, feelings: [.content], contexts: [.work], location: nil, locationName: nil, metadata: nil),
+            MindStateEntry(id: UUID(), timestamp: Date().addingTimeInterval(-1800), kind: .dailyMood, valence: 0.5, feelings: [.happy], contexts: [.family], location: nil, locationName: nil, metadata: nil),
+            MindStateEntry(id: UUID(), timestamp: Date(), kind: .dailyMood, valence: 1.0, feelings: [.excited], contexts: [.finances], location: nil, locationName: nil, metadata: nil)
         ]
         
         self.allEntries = dummyEntries

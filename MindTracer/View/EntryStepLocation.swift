@@ -120,7 +120,7 @@ struct EntryStepLocation: View {
                     .font(.caption)
                     .bold()
                     .padding(4)
-                    .background(Color.white.opacity(0.85))
+                    .background(Color.gray.opacity(0.6))
                     .cornerRadius(6)
                     .shadow(radius: 2)
 

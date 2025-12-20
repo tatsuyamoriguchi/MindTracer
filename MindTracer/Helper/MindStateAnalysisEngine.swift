@@ -64,16 +64,21 @@ private extension MindStateAnalysisEngine {
     }
 }
 
+//private extension MindStateAnalysisEngine {
+//
+//    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
+//
+//        let allFeelings = entries.flatMap { $0.feelings }
+//
+//        let counts = Dictionary(grouping: allFeelings, by: { $0 })
+//            .mapValues { $0.count }
+//
+//        return counts.max(by: { $0.value < $1.value })?.key
+//    }
+//}
 private extension MindStateAnalysisEngine {
-
     static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
-
-        let allFeelings = entries.flatMap { $0.feelings }
-
-        let counts = Dictionary(grouping: allFeelings, by: { $0 })
-            .mapValues { $0.count }
-
-        return counts.max(by: { $0.value < $1.value })?.key
+        return entries.max(by: { $0.timestamp < $1.timestamp })?.feelings.first
     }
 }
 
