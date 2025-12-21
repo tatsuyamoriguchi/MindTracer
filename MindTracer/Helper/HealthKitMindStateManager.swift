@@ -53,10 +53,147 @@ extension HealthKitMindStateManager {
         
         // Dummy data for simulator
         let dummyEntries: [MindStateEntry] = [
-            MindStateEntry(id: UUID(), timestamp: Date().addingTimeInterval(-3600), kind: .dailyMood, valence: 0.0, feelings: [.content], contexts: [.work], location: nil, locationName: nil, metadata: nil),
-            MindStateEntry(id: UUID(), timestamp: Date().addingTimeInterval(-1800), kind: .dailyMood, valence: 0.5, feelings: [.happy], contexts: [.family], location: nil, locationName: nil, metadata: nil),
-            MindStateEntry(id: UUID(), timestamp: Date(), kind: .dailyMood, valence: 1.0, feelings: [.excited], contexts: [.finances], location: nil, locationName: nil, metadata: nil)
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: 0.5,
+                feelings: [.happy], // .yellow
+                contexts: [.family], location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date(),
+                kind: .dailyMood,
+                valence: 1.0,
+                feelings: [.excited], // .orange
+                contexts: [.finances],
+                location: nil,
+                locationName: nil,
+                metadata: nil)
         ]
+        
+        let dummyEntries2: [MindStateEntry] = [
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: -0.1,
+                feelings: [.angry], // .red
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: -0.5,
+                feelings: [.anxious], // .pink
+                contexts: [.family],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date(),
+                kind: .dailyMood,
+                valence: -0.8,
+                feelings: [.sad], // .blue
+                contexts: [.finances],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            )
+        ]
+
+        let dummyEntries3: [MindStateEntry] = [
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: -0.1,
+                feelings: [.angry], // .red
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: -0.5,
+                feelings: [.anxious], // .pink
+                contexts: [.family],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date(),
+                kind: .dailyMood,
+                valence: 1.0,
+                feelings: [.excited], // .orange
+                contexts: [.finances],
+                location: nil,
+                locationName: nil,
+                metadata: nil)
+        ]
+        
+        let dummyEntries1: [MindStateEntry] = [
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: 0.5,
+                feelings: [.happy], // .yellow
+                contexts: [.family], location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date(),
+                kind: .dailyMood,
+                valence: -0.5,
+                feelings: [.anxious], // .pink
+                contexts: [.family],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            )
+        ]
+
         
         self.allEntries = dummyEntries
         self.latestMindState = dummyEntries.last

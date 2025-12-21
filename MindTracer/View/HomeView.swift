@@ -9,11 +9,11 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @StateObject private var mindStateManager = HealthKitMindStateManager()    
+    @StateObject private var mindStateManager = HealthKitMindStateManager()
     @State private var summary: MindStateSummary?
     @State private var wisdomMessage: String = "Loading..."
     @State var showEntrySheet = false
-    
+    @State private var displayedColor: Color = .gray
     @State private var pulse: Bool = false
     
     var body: some View {
@@ -24,39 +24,50 @@ struct HomeView: View {
                 
                 if let summary {
                     ZStack {
+                        // White glow background for visibility
+                        Circle()
+                            .fill(Color.white.opacity(0.6))
+                            .frame(width: 280, height: 280)
+                            .blur(radius: 30)
+                        
                         // Flaring layer
                         Circle()
-                            .fill(summary.backgroundColor)
+                            .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries))
                             .frame(width: 230, height: 230)
-                            .scaleEffect(pulse ? 1.2 : 1.0) // grows and shrinks
-                            .opacity(pulse ? 0.2 : 0.8)     // fade in/out
+                            .scaleEffect(pulse ? 1.3 : 1.0)
+                            .opacity(pulse ? 0.2 : 0.5)
                             .blur(radius: 10)
                         
                         // Main circle
                         Circle()
-                            .fill(summary.backgroundColor)
+                            .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries))
                             .frame(width: 200, height: 200)
                             .shadow(radius: 5)
                             .padding()
-                            .animation(.easeInOut(duration: 0.6), value: summary.backgroundColor)
+//                            .animation(.easeInOut(duration: 4.0), value: mindStateManager.allEntries)
+                        // Latest Mind text on top of the circle
+                        if let latest = summary.latestEntry {
+                            Text("Latest Feeling: \n\(latest.feelings.first?.rawValue ?? "Unknown")")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        
                     }
                     .onAppear {
-                        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                        withAnimation(.easeInOut(duration: 4.0).repeatForever(autoreverses: true)) {
                             pulse.toggle()
                         }
                     }
-                // Latest analysis summary
-//                if let summary {
+                    // Latest analysis summary
                     Text(summary.summaryText)
                         .font(.headline)
                         .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)   // let it expand horizontally
+                        .fixedSize(horizontal: false, vertical: true) // prevent truncation vertically
                         .padding()
                     
-                    if let latest = summary.latestEntry {
-                        Text("Latest feeling: \(latest.feelings.first?.rawValue ?? "Unknown")")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
+                    
                     
                 } else {
                     Text("Fetching mind state...")
@@ -81,7 +92,7 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Mind Tracer")
             .background(Color(.systemBackground))
-                .ignoresSafeArea()
+            .ignoresSafeArea()
             .padding()
             .task {
                 await loadData()
@@ -98,10 +109,8 @@ struct HomeView: View {
             .sheet(isPresented: $showEntrySheet) {
                 MindStateEntryFlow(showEntrySheet: $showEntrySheet)
             }
-           
+            .preferredColorScheme(.dark)
         }
-        .preferredColorScheme(.dark)
-        
     }
     
     private var content: some View {
@@ -109,7 +118,7 @@ struct HomeView: View {
             Text("Mind Snapshot")
                 .font(.title2)
                 .fontWeight(.semibold)
-
+            
         }
         .padding()
     }
@@ -123,7 +132,7 @@ extension HomeView {
         // Simulator: skip HealthKit authorization
         await mindStateManager.fetchLatestMindState()
         
-        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries)
+        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
         self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
         
         withAnimation(.easeInOut(duration: 1.0)) {
@@ -136,7 +145,7 @@ extension HomeView {
             try await mindStateManager.requestAuthorization()
             await mindStateManager.fetchLatestMindState()
             
-            let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries)
+            let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
             self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
             
             withAnimation(.easeInOut(duration: 0.6)) {

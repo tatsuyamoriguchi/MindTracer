@@ -9,32 +9,34 @@ import SwiftUI
 
 enum MindFeeling: String, Codable, CaseIterable, Identifiable {
     case happy
-    case sad
-    case anxious
-    case calm
-    case content
     case excited
-    case stressed
-    case lonely
-    case angry
+    case content
+    case calm
     case tired
+    case stressed
+    case angry
+    case anxious
+    case lonely
+    case sad
 
     var id: String { rawValue }
 }
+
+// cyan indigo mint pink teal
 
 extension MindFeeling {
     var baseColor: Color {
         switch self {
         case .happy:     return .yellow
-        case .sad:       return .blue.opacity(0.8)   // darker blue
-        case .anxious:   return .blue
-        case .calm:      return .mint
-        case .content:   return .green.opacity(0.6)
         case .excited:   return .orange
-        case .stressed:  return .purple
-        case .lonely:    return .black
-        case .angry:     return .red
+        case .content:   return .teal
+        case .calm:      return .mint
         case .tired:     return .gray
+        case .stressed:  return .indigo
+        case .angry:     return .red
+        case .sad:       return .blue
+        case .anxious:   return .pink
+        case .lonely:    return .black
         }
     }
 }

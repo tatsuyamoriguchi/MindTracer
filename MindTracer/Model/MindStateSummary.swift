@@ -40,13 +40,13 @@ extension MoodTrend {
     var opacity: Double {
         switch self {
         case .improving:
-            return 0.35   // high presence, still subtle
+            return 0.90   // high presence, still subtle
         case .stable:
-            return 0.22
+            return 0.60
         case .declining:
-            return 0.12
+            return 0.30
         case .unknown:
-            return 0.18
+            return 0.40
         }
     }
 
