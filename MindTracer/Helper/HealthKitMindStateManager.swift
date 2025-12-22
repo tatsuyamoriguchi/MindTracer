@@ -86,7 +86,7 @@ extension HealthKitMindStateManager {
                 metadata: nil)
         ]
         
-        let dummyEntries2: [MindStateEntry] = [
+        let dummyEntries3: [MindStateEntry] = [
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-3600),
@@ -123,7 +123,7 @@ extension HealthKitMindStateManager {
             )
         ]
 
-        let dummyEntries3: [MindStateEntry] = [
+        let dummyEntries2: [MindStateEntry] = [
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-3600),
@@ -177,6 +177,41 @@ extension HealthKitMindStateManager {
                 kind: .dailyMood,
                 valence: 0.5,
                 feelings: [.happy], // .yellow
+                contexts: [.family], location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date(),
+                kind: .dailyMood,
+                valence: -0.5,
+                feelings: [.anxious], // .pink
+                contexts: [.family],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            )
+        ]
+
+        let dummyEntries4: [MindStateEntry] = [
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: -1.0,
+                feelings: [.sad],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: -0.8,
+                feelings: [.angry], // .yellow
                 contexts: [.family], location: nil,
                 locationName: nil,
                 metadata: nil),

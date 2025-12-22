@@ -46,15 +46,18 @@ private extension MindStateAnalysisEngine {
 
     static func calculateTrend(from entries: [MindStateEntry]) -> MoodTrend {
 
+        // If count is less than 2 (0 or 1), return .unknown (opacity 0.40)
         guard entries.count >= 2 else {
-            return .stable
+            return .unknown
         }
 
         let recent = entries.suffix(3)
         let values = recent.map { $0.valence }
 
+        // diff between the minimum and maximum valence
         let delta = values.last! - values.first!
 
+        // Determin recent improvement
         if delta > 0.15 {
             return .improving
         } else if delta < -0.15 {
@@ -89,39 +92,46 @@ extension MindStateAnalysisEngine {
 }
 
 extension MindStateAnalysisEngine {
+    
+//    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
+//        let recent = entries.suffix(3)
+//        let allFeelings = recent.flatMap { $0.feelings }
+//        
+//        let counts = Dictionary(grouping: allFeelings, by: { $0 })
+//            .mapValues { $0.count }
+//        
+//        // Sort by count, then use the last entry's feeling as a tie-breaker
+//        return counts.max { a, b in
+//            if a.value == b.value {
+//                // If counts are equal, this logic can be expanded,
+//                // but usually the first found max is returned.
+//                return false
+//            }
+//            return a.value < b.value
+//        }?.key
+//    }
     static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
         let recent = entries.suffix(3)
         let allFeelings = recent.flatMap { $0.feelings }
-        
+
         let counts = Dictionary(grouping: allFeelings, by: { $0 })
             .mapValues { $0.count }
-        
-        // Sort by count, then use the last entry's feeling as a tie-breaker
-        return counts.max { a, b in
-            if a.value == b.value {
-                // If counts are equal, this logic can be expanded,
-                // but usually the first found max is returned.
-                return false
-            }
-            return a.value < b.value
-        }?.key
-    }
 
-    //    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
-    //
-    //        let allFeelings = entries.flatMap { $0.feelings }
-    //
-    //        let counts = Dictionary(grouping: allFeelings, by: { $0 })
-    //            .mapValues { $0.count }
-    //
-    //        return counts.max(by: { $0.value < $1.value })?.key
-    //    }
-    //}
-    //private extension MindStateAnalysisEngine {
-    //    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
-    //        return entries.max(by: { $0.timestamp < $1.timestamp })?.feelings.first
-    //    }
-    //}
+        // Sort by count, then by most recent appearance
+        return counts
+            .sorted { a, b in
+                if a.value != b.value {
+                    return a.value > b.value
+                }
+
+                // tie-breaker: most recent entry wins
+                let lastA = recent.last { $0.feelings.contains(a.key) }?.timestamp ?? .distantPast
+                let lastB = recent.last { $0.feelings.contains(b.key) }?.timestamp ?? .distantPast
+                return lastA > lastB
+            }
+            .first?
+            .key
+    }
 
 }
 

@@ -40,7 +40,7 @@ struct HomeView: View {
                         
                         // Main circle
                         Circle()
-                            .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries))
+                            .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries)) // Get opacity
                             .frame(width: 200, height: 200)
                             .shadow(radius: 5)
                             .padding()
@@ -55,7 +55,7 @@ struct HomeView: View {
                         
                     }
                     .onAppear {
-                        withAnimation(.easeInOut(duration: 4.0).repeatForever(autoreverses: true)) {
+                        withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                             pulse.toggle()
                         }
                     }
