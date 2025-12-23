@@ -9,13 +9,23 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var settings: NotificationSettings = NotificationSettingsStorage.shared.load()
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = false // The default value (false) is used ONLY if the key does not exist
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 Form {
-                    
+                    Section {
+                        Toggle("Enable Notifications", isOn: $notificationsEnabled)
+                            .onChange(of: notificationsEnabled) { enabled in
+                                if enabled {
+                                    NotificationManager.shared.enableNotifications()
+                                } else {
+                                    NotificationManager.shared.cancelAllNotifications()
+                                }
+                            }
+                    }
+
                     Section(header: Text("Hourly Mind State Reminder")) {
                         Toggle("Enable", isOn: $settings.hourlyReminderEnabled)
                         Picker("Minute", selection: $settings.hourlyReminderMinute) {

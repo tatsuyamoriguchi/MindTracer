@@ -14,10 +14,17 @@ class NotificationManager {
     
     
     private init() {} // singleton
+
     
     // MARK: - Request Permission
     func requestPermission(completion: ((Bool) -> Void)? = nil) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            
+            // ✅ Check status immediately after request
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                print("Authorization status:", settings.authorizationStatus.rawValue)
+            }
+
             if let error = error {
                 print("Notification permission error: \(error)")
                 completion?(false)
