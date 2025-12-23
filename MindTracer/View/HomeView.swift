@@ -44,7 +44,6 @@ struct HomeView: View {
                             .frame(width: 200, height: 200)
                             .shadow(radius: 5)
                             .padding()
-//                            .animation(.easeInOut(duration: 4.0), value: mindStateManager.allEntries)
                         // Latest Mind text on top of the circle
                         if let latest = summary.latestEntry {
                             Text("Latest Feeling: \n\(latest.feelings.first?.rawValue ?? "Unknown")")
@@ -126,45 +125,88 @@ struct HomeView: View {
 
 extension HomeView {
     
+//    @MainActor
+//    private func loadData() async {
+//#if targetEnvironment(simulator)
+//        // Simulator: skip HealthKit authorization
+//        await mindStateManager.fetchLatestMindState()
+//        
+//        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
+//        self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+//        
+//        withAnimation(.easeInOut(duration: 1.0)) {
+//            self.summary = computedSummary
+//            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+//        }
+//#else
+//        // Real device
+//        do {
+//            try await mindStateManager.requestAuthorization()
+//            await mindStateManager.fetchLatestMindState()
+//            
+//            let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
+//            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+//            
+//            withAnimation(.easeInOut(duration: 0.6)) {
+//                self.summary = computedSummary
+//                self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+//            }
+//            
+//        } catch {
+//            self.summary = nil
+//            self.wisdomMessage = "Unable to fetch mind state."
+//            print("HealthKit error:", error)
+//            
+//            withAnimation(.easeInOut(duration: 0.6)) {
+//                self.summary = computedSummary
+//                self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+//            }
+//        }
+//#endif
+//    }
+    
     @MainActor
     private func loadData() async {
-#if targetEnvironment(simulator)
+    #if targetEnvironment(simulator)
         // Simulator: skip HealthKit authorization
         await mindStateManager.fetchLatestMindState()
-        
-        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
-        self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-        
+
+        let computedSummary = MindStateAnalysisEngine.summarize(
+            Array(mindStateManager.allEntries.prefix(3))
+        )
+
         withAnimation(.easeInOut(duration: 1.0)) {
             self.summary = computedSummary
             self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
         }
-#else
+
+    #else
         // Real device
         do {
             try await mindStateManager.requestAuthorization()
             await mindStateManager.fetchLatestMindState()
-            
-            let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
-            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-            
+
+            let computedSummary = MindStateAnalysisEngine.summarize(
+                Array(mindStateManager.allEntries.prefix(3))
+            )
+
             withAnimation(.easeInOut(duration: 0.6)) {
                 self.summary = computedSummary
                 self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
             }
-            
+
         } catch {
-            self.summary = nil
-            self.wisdomMessage = "Unable to fetch mind state."
-            print("HealthKit error:", error)
-            
+            // ❗ NO computedSummary here — it does not exist
             withAnimation(.easeInOut(duration: 0.6)) {
-                self.summary = computedSummary
-                self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+                self.summary = nil
+                self.wisdomMessage = "Health data access was not granted."
             }
+            print("HealthKit error:", error)
         }
-#endif
+    #endif
     }
+
+    
 }
 
 #Preview {

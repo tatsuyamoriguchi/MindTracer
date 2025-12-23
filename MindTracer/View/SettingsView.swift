@@ -69,6 +69,10 @@ struct SettingsView: View {
                         }
                     }
                     
+                    Section(header: Text("Version & Build Info")) {
+                        Text(AppVersion.fullVersion)
+                    }
+                    
                     Section(header: Text("Legal & Medical Disclaimer")) {
                         Text(MindTracerLegalContents().legal)
                     }
