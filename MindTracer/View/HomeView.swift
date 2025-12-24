@@ -38,15 +38,26 @@ struct HomeView: View {
                             .opacity(pulse ? 0.2 : 0.5)
                             .blur(radius: 10)
                         
-                        // Main circle
+                        // Big circle: dominant feeling + trend-based opacity
                         Circle()
                             .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries)) // Get opacity
                             .frame(width: 200, height: 200)
                             .shadow(radius: 5)
                             .padding()
+                        
+                        // Small circle: latest feeling, full opacity
+                            if let latest = summary.latestEntry,
+                               let latestFeeling = latest.feelings.first {
+                                Circle()
+                                    .fill(latestFeeling.baseColor)  // always full color
+                                    .frame(width: 80, height: 80)
+                                    .shadow(radius: 5)
+                            }
+                        
+                        
                         // Latest Mind text on top of the circle
                         if let latest = summary.latestEntry {
-                            Text("Latest Feeling: \n\(latest.feelings.first?.rawValue ?? "Unknown")")
+                            Text("Latest Feeling: \n\(latest.feelings.first?.rawValue.capitalized ?? "Unknown")")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -125,46 +136,6 @@ struct HomeView: View {
 
 extension HomeView {
     
-//    @MainActor
-//    private func loadData() async {
-//#if targetEnvironment(simulator)
-//        // Simulator: skip HealthKit authorization
-//        await mindStateManager.fetchLatestMindState()
-//        
-//        let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
-//        self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-//        
-//        withAnimation(.easeInOut(duration: 1.0)) {
-//            self.summary = computedSummary
-//            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-//        }
-//#else
-//        // Real device
-//        do {
-//            try await mindStateManager.requestAuthorization()
-//            await mindStateManager.fetchLatestMindState()
-//            
-//            let computedSummary = MindStateAnalysisEngine.summarize(mindStateManager.allEntries) // .allEntries??? should be last 3 entries
-//            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-//            
-//            withAnimation(.easeInOut(duration: 0.6)) {
-//                self.summary = computedSummary
-//                self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-//            }
-//            
-//        } catch {
-//            self.summary = nil
-//            self.wisdomMessage = "Unable to fetch mind state."
-//            print("HealthKit error:", error)
-//            
-//            withAnimation(.easeInOut(duration: 0.6)) {
-//                self.summary = computedSummary
-//                self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-//            }
-//        }
-//#endif
-//    }
-    
     @MainActor
     private func loadData() async {
     #if targetEnvironment(simulator)
@@ -172,7 +143,7 @@ extension HomeView {
         await mindStateManager.fetchLatestMindState()
 
         let computedSummary = MindStateAnalysisEngine.summarize(
-            Array(mindStateManager.allEntries.prefix(3))
+            Array(mindStateManager.allEntries.prefix(5))
         )
 
         withAnimation(.easeInOut(duration: 1.0)) {
@@ -187,7 +158,7 @@ extension HomeView {
             await mindStateManager.fetchLatestMindState()
 
             let computedSummary = MindStateAnalysisEngine.summarize(
-                Array(mindStateManager.allEntries.prefix(3))
+                Array(mindStateManager.allEntries.prefix(5))
             )
 
             withAnimation(.easeInOut(duration: 0.6)) {

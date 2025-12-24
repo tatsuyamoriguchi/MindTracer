@@ -83,5 +83,4 @@ struct InfoMessageRow: View {
         )
     )
     .padding()
-    .previewLayout(.sizeThatFits)
 }

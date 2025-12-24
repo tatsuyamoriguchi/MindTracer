@@ -47,11 +47,11 @@ private extension MindStateAnalysisEngine {
     static func calculateTrend(from entries: [MindStateEntry]) -> MoodTrend {
 
         // If count is less than 2 (0 or 1), return .unknown (opacity 0.40)
-        guard entries.count >= 2 else {
+        guard entries.count >= 4 else {
             return .unknown
         }
 
-        let recent = entries.suffix(3)
+        let recent = entries.suffix(5)
         let values = recent.map { $0.valence }
 
         // diff between the minimum and maximum valence
@@ -77,7 +77,7 @@ extension MindStateAnalysisEngine {
         guard !entries.isEmpty else { return Color.gray.opacity(0.5) }
         
         // 2. Extract recent entries and calculate core values
-        let recent = Array(entries.suffix(3))
+        let recent = Array(entries.suffix(5))
         let trend = calculateTrend(from: recent)
         let dominantFeeling = calculateDominantFeeling(from: recent)
         
@@ -93,46 +93,57 @@ extension MindStateAnalysisEngine {
 
 extension MindStateAnalysisEngine {
     
-//    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
-//        let recent = entries.suffix(3)
-//        let allFeelings = recent.flatMap { $0.feelings }
-//        
-//        let counts = Dictionary(grouping: allFeelings, by: { $0 })
-//            .mapValues { $0.count }
-//        
-//        // Sort by count, then use the last entry's feeling as a tie-breaker
-//        return counts.max { a, b in
-//            if a.value == b.value {
-//                // If counts are equal, this logic can be expanded,
-//                // but usually the first found max is returned.
-//                return false
-//            }
-//            return a.value < b.value
-//        }?.key
-//    }
     static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
-        let recent = entries.suffix(3)
+        let recent = entries.suffix(5)
         let allFeelings = recent.flatMap { $0.feelings }
-
-        let counts = Dictionary(grouping: allFeelings, by: { $0 })
-            .mapValues { $0.count }
-
-        // Sort by count, then by most recent appearance
+        
+        guard !allFeelings.isEmpty else { return nil }
+        
+        // Count occurrences
+        let counts = Dictionary(grouping: allFeelings, by: { $0 }).mapValues { $0.count }
+        
+        // Sort by count, tie-break by most recent
         return counts
             .sorted { a, b in
-                if a.value != b.value {
-                    return a.value > b.value
-                }
-
-                // tie-breaker: most recent entry wins
+                if a.value != b.value { return a.value > b.value }  // higher count wins
                 let lastA = recent.last { $0.feelings.contains(a.key) }?.timestamp ?? .distantPast
                 let lastB = recent.last { $0.feelings.contains(b.key) }?.timestamp ?? .distantPast
                 return lastA > lastB
             }
-            .first?
-            .key
+            .first?.key
     }
 
+    
+//    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
+//        guard let latest = entries.last else { return nil }
+//        // Prioritize latest feelings first
+//        return latest.feelings.first ?? entries.suffix(5).flatMap { $0.feelings }.first
+//    }
+
+    
+//    static func calculateDominantFeeling(from entries: [MindStateEntry]) -> MindFeeling? {
+//
+//        let recent = entries.suffix(5)
+//        let allFeelings = recent.flatMap { $0.feelings }
+//
+//        let counts = Dictionary(grouping: allFeelings, by: { $0 })
+//            .mapValues { $0.count }
+//
+//        // Sort by count, then by most recent appearance
+//        return counts
+//            .sorted { a, b in
+//                if a.value != b.value {
+//                    return a.value > b.value
+//                }
+//
+//                // tie-breaker: most recent entry wins
+//                let lastA = recent.last { $0.feelings.contains(a.key) }?.timestamp ?? .distantPast
+//                let lastB = recent.last { $0.feelings.contains(b.key) }?.timestamp ?? .distantPast
+//                return lastA > lastB
+//            }
+//            .first?
+//            .key
+//    }
 }
 
 

@@ -57,6 +57,17 @@ extension HealthKitMindStateManager {
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-3600),
                 kind: .dailyMood,
+                valence: -0.5,
+                feelings: [.stressed],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-2400),
+                kind: .dailyMood,
                 valence: 0.0,
                 feelings: [.content],  // .teal
                 contexts: [.work],
@@ -67,6 +78,17 @@ extension HealthKitMindStateManager {
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1200),
                 kind: .dailyMood,
                 valence: 0.5,
                 feelings: [.happy], // .yellow
@@ -91,6 +113,18 @@ extension HealthKitMindStateManager {
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-3600),
                 kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-2400),
+                kind: .dailyMood,
                 valence: -0.1,
                 feelings: [.angry], // .red
                 contexts: [.work],
@@ -98,9 +132,22 @@ extension HealthKitMindStateManager {
                 locationName: nil,
                 metadata: nil
             ),
+            
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-1800),
+                kind: .dailyMood,
+                valence: -0.1,
+                feelings: [.angry], // .red
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-120),
                 kind: .dailyMood,
                 valence: -0.5,
                 feelings: [.anxious], // .pink
@@ -109,7 +156,7 @@ extension HealthKitMindStateManager {
                 locationName: nil,
                 metadata: nil
             ),
-
+            
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date(),
@@ -123,7 +170,7 @@ extension HealthKitMindStateManager {
             )
         ]
 
-        let dummyEntries2: [MindStateEntry] = [
+        let dummyEntries4: [MindStateEntry] = [
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-3600),
@@ -135,6 +182,30 @@ extension HealthKitMindStateManager {
                 locationName: nil,
                 metadata: nil
             ),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil
+            ),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-3600),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-1800),
@@ -173,11 +244,33 @@ extension HealthKitMindStateManager {
             
             MindStateEntry(
                 id: UUID(),
+                timestamp: Date().addingTimeInterval(-2400),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
                 timestamp: Date().addingTimeInterval(-1800),
                 kind: .dailyMood,
                 valence: 0.5,
                 feelings: [.happy], // .yellow
                 contexts: [.family], location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1200),
+                kind: .dailyMood,
+                valence: 0.0,
+                feelings: [.content],  // .teal
+                contexts: [.work],
+                location: nil,
                 locationName: nil,
                 metadata: nil),
             
@@ -194,7 +287,7 @@ extension HealthKitMindStateManager {
             )
         ]
 
-        let dummyEntries4: [MindStateEntry] = [
+        let dummyEntries2: [MindStateEntry] = [
             MindStateEntry(
                 id: UUID(),
                 timestamp: Date().addingTimeInterval(-3600),
@@ -208,7 +301,29 @@ extension HealthKitMindStateManager {
             
             MindStateEntry(
                 id: UUID(),
-                timestamp: Date().addingTimeInterval(-1800),
+                timestamp: Date().addingTimeInterval(-2400),
+                kind: .dailyMood,
+                valence: -1.0,
+                feelings: [.sad],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date(),
+                kind: .dailyMood,
+                valence: -1.0,
+                feelings: [.sad],  // .teal
+                contexts: [.work],
+                location: nil,
+                locationName: nil,
+                metadata: nil),
+            
+            MindStateEntry(
+                id: UUID(),
+                timestamp: Date().addingTimeInterval(-1200),
                 kind: .dailyMood,
                 valence: -0.8,
                 feelings: [.angry], // .yellow
@@ -218,7 +333,7 @@ extension HealthKitMindStateManager {
             
             MindStateEntry(
                 id: UUID(),
-                timestamp: Date(),
+                timestamp: Date().addingTimeInterval(-1800),
                 kind: .dailyMood,
                 valence: -0.5,
                 feelings: [.anxious], // .pink

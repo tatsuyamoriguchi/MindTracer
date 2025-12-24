@@ -15,6 +15,12 @@ class NotificationManager {
     
     private init() {} // singleton
 
+    // MARK: - Get Authorizatoin Status
+    func getAuthorizationStatus(completion: @escaping (UNAuthorizationStatus) -> Void) {
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                completion(settings.authorizationStatus)
+            }
+        }
     
     // MARK: - Request Permission
     func requestPermission(completion: ((Bool) -> Void)? = nil) {
@@ -125,6 +131,9 @@ class NotificationManager {
         requestPermission { granted in
             guard granted else { return }
             
+            // Cancel previous notifications
+            self.cancelAllNotifications()
+            
             // Load user's saved notification settings from JSON
             let settings = NotificationSettingsStorage.shared.load()
             
@@ -163,5 +172,24 @@ class NotificationManager {
             }
         }
     }
+    
+    func scheduleHourlyNotification(title: String, body: String, startHour: Int, endHour: Int, minute: Int, sound: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "\(sound).caf"))
+
+        for hour in startHour...endHour {
+            var dateComponents = DateComponents()
+            dateComponents.hour = hour
+            dateComponents.minute = minute
+            
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+            let request = UNNotificationRequest(identifier: "\(title)-\(hour)", content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request)
+        }
+    }
+
 
 }

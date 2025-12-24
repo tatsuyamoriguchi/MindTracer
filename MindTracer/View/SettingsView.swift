@@ -10,74 +10,65 @@ import SwiftUI
 struct SettingsView: View {
     @State private var settings: NotificationSettings = NotificationSettingsStorage.shared.load()
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false // The default value (false) is used ONLY if the key does not exist
+    @EnvironmentObject var permissionState: NotificationPermissionState
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 Form {
                     Section {
-                        Toggle("Enable Notifications", isOn: $notificationsEnabled)
-                            .onChange(of: notificationsEnabled) { enabled in
-                                if enabled {
+                        Toggle("Permit Notifications on this Device", isOn: $notificationsEnabled)
+                            .onChange(of: notificationsEnabled) { oldValue, newValue in
+                                if newValue {
                                     NotificationManager.shared.enableNotifications()
                                 } else {
                                     NotificationManager.shared.cancelAllNotifications()
                                 }
+                                // 🔑 FORCE UI STATE UPDATE
+                                    permissionState.isDeviceNotificationPermitted = newValue
                             }
                     }
+                    .onAppear {
+                        permissionState.refresh()
+                        notificationsEnabled = permissionState.isDeviceNotificationPermitted
+                    }
+                    .onChange(of: permissionState.isDeviceNotificationPermitted) { _, newValue in
+                        notificationsEnabled = newValue
+                    }
 
-                    Section(header: Text("Hourly Mind State Reminder")) {
-                        Toggle("Enable", isOn: $settings.hourlyReminderEnabled)
-                        Picker("Minute", selection: $settings.hourlyReminderMinute) {
-                            ForEach(0..<60) { Text("\($0) min") }
-                        }
-                        TextField("Title", text: $settings.hourlyTitle)
-                        TextField("Body", text: $settings.hourlyBody)
-                        Picker("Sound", selection: $settings.hourlySound) {
-                            Text("Default").tag("default")
-                            Text("Chime").tag("chime")
-                            Text("Bell").tag("bell")
+//                    Section(header: Text("Reminder Settings")) {
+//
+//                        Text(settings.summaryText)
+//                            .font(.caption)
+//                                .foregroundColor(.primary)
+//                        
+//                        NavigationLink("To Reminder Settings") {
+//                            ReminderView(settings: $settings)
+//                        }
+//                    }
+                    Section(header: Text("Reminder Settings")) {
+
+                        if permissionState.isDeviceNotificationPermitted {
+
+                            Text(settings.summaryText)
+                                .font(.caption)
+                                .foregroundColor(.primary)
+
+                            NavigationLink("To Reminder Settings") {
+                                ReminderView(settings: $settings)
+                            }
+
+                        } else {
+
+                            Text("Notifications not permitted on this device.\nEnable it above.")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                                .padding(.vertical, 4)
                         }
                     }
+
                     
-                    Section(header: Text("Hourly Task Reminder")) {
-                        Toggle("Enable", isOn: $settings.hourlyTaskReminderEnabled)
-                        Picker("Minute", selection: $settings.hourlyTaskReminderMinute) {
-                            ForEach(0..<60) { Text("\($0) min") }
-                        }
-                        TextField("Title", text: $settings.hourlyTaskTitle)
-                        TextField("Body", text: $settings.hourlyTaskBody)
-                        Picker("Sound", selection: $settings.hourlyTaskSound) {
-                            Text("Default").tag("default")
-                            Text("Chime").tag("chime")
-                            Text("Bell").tag("bell")
-                        }
-                    }
-                    
-                    Section(header: Text("Daily Reminder")) {
-                        Toggle("Enable", isOn: $settings.dailyReminderEnabled)
-                        DatePicker(
-                            "Time",
-                            selection: Binding(
-                                get: {
-                                    Calendar.current.date(from: DateComponents(hour: settings.dailyHour, minute: settings.dailyMinute)) ?? Date()
-                                },
-                                set: { date in
-                                    let comps = Calendar.current.dateComponents([.hour, .minute], from: date)
-                                    settings.dailyHour = comps.hour ?? 20
-                                    settings.dailyMinute = comps.minute ?? 0
-                                }
-                            ),
-                            displayedComponents: [.hourAndMinute]
-                        )
-                        TextField("Title", text: $settings.dailyTitle)
-                        TextField("Body", text: $settings.dailyBody)
-                        Picker("Sound", selection: $settings.dailySound) {
-                            Text("Default").tag("default")
-                            Text("Chime").tag("chime")
-                            Text("Bell").tag("bell")
-                        }
-                    }
                     
                     Section(header: Text("Version & Build Info")) {
                         Text(AppVersion.fullVersion)
@@ -101,6 +92,7 @@ struct SettingsView: View {
         }
 
     }
+    
 }
 
 
