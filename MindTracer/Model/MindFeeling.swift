@@ -18,6 +18,7 @@ enum MindFeeling: String, Codable, CaseIterable, Identifiable {
     case anxious
     case lonely
     case sad
+    case neutral
 
     var id: String { rawValue }
 }
@@ -31,12 +32,13 @@ extension MindFeeling {
         case .excited:   return .orange
         case .content:   return .teal
         case .calm:      return .mint
-        case .tired:     return .gray
+        case .tired:     return .brown
         case .stressed:  return .indigo
         case .angry:     return .red
         case .sad:       return .blue
         case .anxious:   return .pink
         case .lonely:    return .black
+        case .neutral:  return .gray
         }
     }
 }

@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct HomeView: View {
-    
+    @EnvironmentObject private var store: MindStateStore
+
     @StateObject private var mindStateManager = HealthKitMindStateManager()
     @State private var summary: MindStateSummary?
     @State private var wisdomMessage: String = "Loading..."
     @State var showEntrySheet = false
-    @State private var displayedColor: Color = .gray
     @State private var pulse: Bool = false
     
     var body: some View {
@@ -31,16 +31,28 @@ struct HomeView: View {
                             .blur(radius: 30)
                         
                         // Flaring layer
+#if targetEnvironment(simulator)
+                        let recentEntries = Array(store.entries.suffix(5)) // use test data
+#else
+                        let recentEntries = Array(mindStateManager.allEntries.suffix(5))
+#endif
+                        let _ = print("Recent entries count:", recentEntries.count) // debug
+                        let dominantFeeling = MindStateAnalysisEngine.calculateDominantFeeling(from: recentEntries) ?? .neutral
+                        let _ = print("Dominant feeling:", dominantFeeling.rawValue)
+                        let trend = MindStateAnalysisEngine.calculateTrend(from: recentEntries)
+                        let trendOpacity = trend.opacity * 2.5
+
                         Circle()
-                            .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries))
+                            .fill(dominantFeeling.baseColor.opacity(trendOpacity))
                             .frame(width: 230, height: 230)
                             .scaleEffect(pulse ? 1.3 : 1.0)
                             .opacity(pulse ? 0.2 : 0.5)
                             .blur(radius: 10)
-                        
+                    
                         // Big circle: dominant feeling + trend-based opacity
                         Circle()
-                            .fill(MindStateAnalysisEngine.colorForRecentTrend(from: mindStateManager.allEntries)) // Get opacity
+                            .fill(dominantFeeling.baseColor)
+                            .opacity(pulse ? 0.2 : 0.5)
                             .frame(width: 200, height: 200)
                             .shadow(radius: 5)
                             .padding()
@@ -53,7 +65,6 @@ struct HomeView: View {
                                     .frame(width: 80, height: 80)
                                     .shadow(radius: 5)
                             }
-                        
                         
                         // Latest Mind text on top of the circle
                         if let latest = summary.latestEntry {
@@ -138,43 +149,27 @@ extension HomeView {
     
     @MainActor
     private func loadData() async {
-    #if targetEnvironment(simulator)
-        // Simulator: skip HealthKit authorization
-        await mindStateManager.fetchLatestMindState()
 
-        let computedSummary = MindStateAnalysisEngine.summarize(
-            Array(mindStateManager.allEntries.prefix(5))
-        )
-
-        withAnimation(.easeInOut(duration: 1.0)) {
-            self.summary = computedSummary
-            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-        }
-
-    #else
-        // Real device
+    #if !targetEnvironment(simulator)
         do {
             try await mindStateManager.requestAuthorization()
-            await mindStateManager.fetchLatestMindState()
-
-            let computedSummary = MindStateAnalysisEngine.summarize(
-                Array(mindStateManager.allEntries.prefix(5))
-            )
-
-            withAnimation(.easeInOut(duration: 0.6)) {
-                self.summary = computedSummary
-                self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
-            }
-
         } catch {
-            // ❗ NO computedSummary here — it does not exist
-            withAnimation(.easeInOut(duration: 0.6)) {
+            withAnimation {
                 self.summary = nil
                 self.wisdomMessage = "Health data access was not granted."
             }
-            print("HealthKit error:", error)
+            return
         }
     #endif
+
+        await mindStateManager.fetchLatestMindState()
+
+        let computedSummary = MindStateAnalysisEngine.summarize(store.entries)
+
+        withAnimation(.easeInOut(duration: 0.6)) {
+            self.summary = computedSummary
+            self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
+        }
     }
 
     

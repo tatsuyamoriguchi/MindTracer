@@ -42,7 +42,7 @@ struct MindStateAnalysisEngine {
     }
 }
 
-private extension MindStateAnalysisEngine {
+extension MindStateAnalysisEngine {
 
     static func calculateTrend(from entries: [MindStateEntry]) -> MoodTrend {
 

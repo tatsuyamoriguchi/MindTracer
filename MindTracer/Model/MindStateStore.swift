@@ -130,35 +130,30 @@ extension MindStateStore {
 
 extension MindStateStore {
 #if DEBUG
-func generateTestEntries(days: Int = 30) {
-    let now = Date()
-    let calendar = Calendar.current
-
-    entries = (0..<days).flatMap { dayOffset in
-        (0..<Int.random(in: 3...8)).map { _ in
-            let date = calendar.date(
-                byAdding: .day,
-                value: -dayOffset,
-                to: now
-            )!
-
-            return MindStateEntry(
-                timestamp: date,
-                kind: Bool.random() ? .momentaryEmotion : .dailyMood,
-                valence: Double.random(in: -1...1),
-                feelings: [],
-                contexts: [],
-                location: nil,
-                locationName: nil
-            )
+    func generateTestEntries(days: Int = 30) {
+        let now = Date()
+        let calendar = Calendar.current
+        
+        entries = (0..<days).flatMap { dayOffset in
+            (0..<Int.random(in: 3...8)).map { _ in
+                let date = calendar.date(
+                    byAdding: .day,
+                    value: -dayOffset,
+                    to: now
+                )!
+                
+                return MindStateEntry(
+                    timestamp: date,
+                    kind: Bool.random() ? .momentaryEmotion : .dailyMood,
+                    valence: Double.random(in: -1...1),
+                    feelings: [],
+                    contexts: [],
+                    location: nil,
+                    locationName: nil
+                )
+            }
         }
     }
-}
 #endif
-
+    
 }
-
-
-
-
-
