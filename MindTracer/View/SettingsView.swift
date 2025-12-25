@@ -38,6 +38,33 @@ struct SettingsView: View {
                             }
                         }
                         
+//                        // Toggle to cancel all scheduled notifications
+//                        Toggle("Enable Scheduled Notifications",
+//                               isOn: $scheduledNotificationsEnabled)
+//                            .onChange(of: scheduledNotificationsEnabled) { oldValue, newValue in
+//                                if newValue {
+//                                    // Re-schedule notifications based on saved settings
+//                                    NotificationManager.shared.enableNotifications { granted in
+//                                        DispatchQueue.main.async {
+//                                            // Only update scheduled notifications toggle, not system permission
+//                                            scheduledNotificationsEnabled = true
+//                                        }
+//                                    }
+//                                } else {
+//                                    NotificationManager.shared.cancelAllNotifications()
+//                                }
+//                            }
+                    }
+
+//                    .onAppear {
+//                        permissionState.refresh()
+//                        if scheduledNotificationsEnabled  &&
+//                            permissionState.isDeviceNotificationPermitted {
+//                                NotificationManager.shared.ensureScheduledNotifications()
+//                            }
+//                    }
+
+                    Section(header: Text("Reminder Settings")) {
                         // Toggle to cancel all scheduled notifications
                         Toggle("Enable Scheduled Notifications",
                                isOn: $scheduledNotificationsEnabled)
@@ -54,18 +81,7 @@ struct SettingsView: View {
                                     NotificationManager.shared.cancelAllNotifications()
                                 }
                             }
-                    }
-
-                    .onAppear {
-                        permissionState.refresh()
-                        if scheduledNotificationsEnabled  &&
-                            permissionState.isDeviceNotificationPermitted {
-                                NotificationManager.shared.ensureScheduledNotifications()
-                            }
-                    }
-
-                    Section(header: Text("Reminder Settings")) {
-
+                        
                         if !permissionState.isDeviceNotificationPermitted {
 
                             Text("Notifications not permitted on this device.")
@@ -90,6 +106,13 @@ struct SettingsView: View {
                                 ReminderView(settings: $settings)
                             }
                         }
+                    }
+                    .onAppear {
+                        permissionState.refresh()
+                        if scheduledNotificationsEnabled  &&
+                            permissionState.isDeviceNotificationPermitted {
+                                NotificationManager.shared.ensureScheduledNotifications()
+                            }
                     }
 
                     
