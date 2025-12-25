@@ -9,12 +9,18 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject private var store: MindStateStore
-
+    
     @StateObject private var mindStateManager = HealthKitMindStateManager()
     @State private var summary: MindStateSummary?
     @State private var wisdomMessage: String = "Loading..."
     @State var showEntrySheet = false
     @State private var pulse: Bool = false
+    @State private var showSnapshotInfo: Bool = false
+    
+    private var currentSummary: MindStateSummary? {
+        let recentEntries = Array(store.entries.suffix(5)) // only last 5 entries
+        return MindStateAnalysisEngine.summarize(recentEntries)
+    }
     
     var body: some View {
         NavigationStack {
@@ -22,8 +28,9 @@ struct HomeView: View {
                 
                 content
                 
-                if let summary {
+                if let summary = currentSummary {
                     ZStack {
+                        
                         // White glow background for visibility
                         Circle()
                             .fill(Color.white.opacity(0.6))
@@ -41,14 +48,14 @@ struct HomeView: View {
                         let _ = print("Dominant feeling:", dominantFeeling.rawValue)
                         let trend = MindStateAnalysisEngine.calculateTrend(from: recentEntries)
                         let trendOpacity = trend.opacity * 2.5
-
+                        
                         Circle()
                             .fill(dominantFeeling.baseColor.opacity(trendOpacity))
                             .frame(width: 230, height: 230)
                             .scaleEffect(pulse ? 1.3 : 1.0)
                             .opacity(pulse ? 0.2 : 0.5)
                             .blur(radius: 10)
-                    
+                        
                         // Big circle: dominant feeling + trend-based opacity
                         Circle()
                             .fill(dominantFeeling.baseColor)
@@ -58,13 +65,13 @@ struct HomeView: View {
                             .padding()
                         
                         // Small circle: latest feeling, full opacity
-                            if let latest = summary.latestEntry,
-                               let latestFeeling = latest.feelings.first {
-                                Circle()
-                                    .fill(latestFeeling.baseColor)  // always full color
-                                    .frame(width: 80, height: 80)
-                                    .shadow(radius: 5)
-                            }
+                        if let latest = summary.latestEntry,
+                           let latestFeeling = latest.feelings.first {
+                            Circle()
+                                .fill(latestFeeling.baseColor)  // always full color
+                                .frame(width: 80, height: 80)
+                                .shadow(radius: 5)
+                        }
                         
                         // Latest Mind text on top of the circle
                         if let latest = summary.latestEntry {
@@ -75,7 +82,7 @@ struct HomeView: View {
                         }
                         
                     }
-                    .onAppear {
+                    .task {
                         withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                             pulse.toggle()
                         }
@@ -107,7 +114,6 @@ struct HomeView: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
 #endif
-                
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -131,14 +137,64 @@ struct HomeView: View {
                 MindStateEntryFlow(showEntrySheet: $showEntrySheet)
             }
             .preferredColorScheme(.dark)
+            .task {
+#if targetEnvironment(simulator)
+                let recentEntries = Array(store.entries.suffix(5))
+                for entry in recentEntries {
+                    print("Timestamp:", entry.timestamp)
+                    print("Valence:", entry.valence)
+                    print("Feelings:", entry.feelings.map { $0.rawValue })
+                    print("Location:", entry.locationName ?? "nil")
+                    print("---")
+                }
+#endif
+            }
+            
+        }
+        .padding()
+        .sheet(isPresented: $showSnapshotInfo) {
+            VStack(spacing: 20) {
+                Text("Mind Snapshot Explanation")
+                    .font(.headline)
+                
+                ScrollView {
+                    Text("""
+                        • Big Circle: Shows your overall mood from your recent entries. Its color reflects your dominant feeling (yellow = happy, orange = excited, gray = neutral). The pulse and glow represent how your mood is trending.
+                        
+                        • Flare / Glow: The surrounding glow pulses gently. Brighter pulses indicate stronger mood trends, rising or falling.
+                        
+                        • Small Circle: Shows your latest recorded mood. Its color matches the feeling you just recorded.
+                        
+                        • Summary Text: Describes your recent mood in words, including your latest feeling, often felt emotions over recent entries, and trend direction.
+                        """)
+                    .padding()
+                    .multilineTextAlignment(.leading)
+                }
+                
+                Button("Close") {
+                    showSnapshotInfo = false
+                }
+                .font(.headline)
+                .padding()
+            }
+            .padding()
         }
     }
     
     private var content: some View {
-        VStack(spacing: 16) {
+        HStack(spacing: 16) {
             Text("Mind Snapshot")
                 .font(.title2)
                 .fontWeight(.semibold)
+            Button(action: {
+                showSnapshotInfo.toggle()
+            }) {
+                Image(systemName: "info.circle")
+                    .font(.title3)
+                    .foregroundColor(.blue)
+            }
+            .buttonStyle(.plain)
+            .help("Tap for explanation") // optional tooltip in macOS / iPad
             
         }
         .padding()
@@ -149,8 +205,8 @@ extension HomeView {
     
     @MainActor
     private func loadData() async {
-
-    #if !targetEnvironment(simulator)
+        
+#if !targetEnvironment(simulator)
         do {
             try await mindStateManager.requestAuthorization()
         } catch {
@@ -160,18 +216,18 @@ extension HomeView {
             }
             return
         }
-    #endif
-
+#endif
+        
         await mindStateManager.fetchLatestMindState()
-
+        
         let computedSummary = MindStateAnalysisEngine.summarize(store.entries)
-
+        
         withAnimation(.easeInOut(duration: 0.6)) {
             self.summary = computedSummary
             self.wisdomMessage = WordsOfWisdomEngine.wisdom(for: computedSummary.latestEntry)
         }
     }
-
+    
     
 }
 

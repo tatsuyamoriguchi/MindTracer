@@ -9,7 +9,7 @@ import MapKit
 import SwiftUI
 
 struct MapView: View {
-    @StateObject private var store = MindStateStore()
+    @EnvironmentObject var store: MindStateStore
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     
     @State private var selectedLocationID: String?

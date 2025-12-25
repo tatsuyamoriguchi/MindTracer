@@ -15,9 +15,7 @@ struct AnalysisView: View {
     @State private var selectedKind: MindStateKind? = nil       // nil = All
     @State private var selectedLocationID: String? = nil        // nil = All
     @State private var selectedContext: MindContext? = nil      // nil = All
-    
     @EnvironmentObject var store: MindStateStore
-    
     @State private var showingInfoAlert: Bool = false
     
     var body: some View {

@@ -12,7 +12,7 @@ struct ReminderView: View {
     
     var body: some View {
         Button {
-            NotificationManager.shared.enableNotifications()
+            NotificationManager.shared.enableNotifications { _ in }
         } label: {
             Text("Update Reminders")
         }

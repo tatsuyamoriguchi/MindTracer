@@ -103,9 +103,11 @@ struct EntryStepMindState: View {
                     location: coordinate, locationName: locationName
                 )
                 
-                store.add(entry)
-                print("New MindStateEntry:", entry)
-                showEntrySheet = false
+                withAnimation {
+                    store.add(entry)       // triggers view update
+                    showEntrySheet = false // dismiss sheet
+                }
+                
             }
         }
         .navigationTitle("Mind State")

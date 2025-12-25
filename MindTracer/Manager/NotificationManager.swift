@@ -125,10 +125,13 @@ class NotificationManager {
     func cancelAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
-    
-    // Helper: Enable notifications with predefined schedules
-    func enableNotifications() {
+    // Request permission and then schedule notifications if granted
+    func enableNotifications(completion: @escaping (Bool) -> Void) {
         requestPermission { granted in
+            DispatchQueue.main.async {
+                completion(granted) // Notify caller about actual permission
+            }
+            
             guard granted else { return }
             
             // Cancel previous notifications
@@ -147,7 +150,7 @@ class NotificationManager {
                     hourlySound: settings.hourlySound
                 )
             }
-
+            
             // Schedule hourly Task reminder
             if settings.hourlyTaskReminderEnabled {
                 self.scheduleHourlyNotification(
@@ -158,7 +161,7 @@ class NotificationManager {
                     hourlySound: settings.hourlyTaskSound
                 )
             }
-
+            
             // Schedule daily reminder
             if settings.dailyReminderEnabled {
                 self.scheduleDailyNotification(
@@ -172,6 +175,52 @@ class NotificationManager {
             }
         }
     }
+    // Helper: Enable notifications with predefined schedules
+//    func enableNotifications() {
+//        requestPermission { granted in
+//            guard granted else { return }
+//            
+//            // Cancel previous notifications
+//            self.cancelAllNotifications()
+//            
+//            // Load user's saved notification settings from JSON
+//            let settings = NotificationSettingsStorage.shared.load()
+//            
+//            // Schedule hourly Mind State reminder
+//            if settings.hourlyReminderEnabled {
+//                self.scheduleHourlyNotification(
+//                    atMinute: settings.hourlyReminderMinute,
+//                    identifier: "hourlyReminder",
+//                    title: settings.hourlyTitle,
+//                    body: settings.hourlyBody,
+//                    hourlySound: settings.hourlySound
+//                )
+//            }
+//
+//            // Schedule hourly Task reminder
+//            if settings.hourlyTaskReminderEnabled {
+//                self.scheduleHourlyNotification(
+//                    atMinute: settings.hourlyTaskReminderMinute,
+//                    identifier: "hourlyTaskReminder",
+//                    title: settings.hourlyTaskTitle,
+//                    body: settings.hourlyTaskBody,
+//                    hourlySound: settings.hourlyTaskSound
+//                )
+//            }
+//
+//            // Schedule daily reminder
+//            if settings.dailyReminderEnabled {
+//                self.scheduleDailyNotification(
+//                    hour: settings.dailyHour,
+//                    minute: settings.dailyMinute,
+//                    title: settings.dailyTitle,
+//                    body: settings.dailyBody,
+//                    sound: settings.dailySound,
+//                    identifier: "dailyReminder"
+//                )
+//            }
+//        }
+//    }
     
     func scheduleHourlyNotification(title: String, body: String, startHour: Int, endHour: Int, minute: Int, sound: String) {
         let content = UNMutableNotificationContent()
