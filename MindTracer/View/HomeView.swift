@@ -43,9 +43,9 @@ struct HomeView: View {
 #else
                         let recentEntries = Array(mindStateManager.allEntries.suffix(5))
 #endif
-                        let _ = print("Recent entries count:", recentEntries.count) // debug
+//                        let _ = print("Recent entries count:", recentEntries.count) // debug
                         let dominantFeeling = MindStateAnalysisEngine.calculateDominantFeeling(from: recentEntries) ?? .neutral
-                        let _ = print("Dominant feeling:", dominantFeeling.rawValue)
+//                        let _ = print("Dominant feeling:", dominantFeeling.rawValue)
                         let trend = MindStateAnalysisEngine.calculateTrend(from: recentEntries)
                         let trendOpacity = trend.opacity * 2.5
                         

@@ -193,6 +193,67 @@ class NotificationManager {
             UNUserNotificationCenter.current().add(request)
         }
     }
+    
+    // MARK: - Ensure Notifications Exist (after relaunch)
+
+    func ensureScheduledNotifications() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            guard settings.authorizationStatus == .authorized else {
+                print("Notifications not authorized — skipping ensure")
+                return
+            }
+
+            UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+                // Look for any of your known identifiers
+                let hasHourly = requests.contains { $0.identifier.hasPrefix("hourlyReminder") }
+                let hasTask   = requests.contains { $0.identifier.hasPrefix("hourlyTaskReminder") }
+                let hasDaily  = requests.contains { $0.identifier == "dailyReminder" }
+
+                if hasHourly || hasTask || hasDaily {
+                    print("Notifications already scheduled — nothing to do")
+                    return
+                }
+
+                print("No scheduled notifications found — restoring from settings")
+
+                let settings = NotificationSettingsStorage.shared.load()
+
+                DispatchQueue.main.async {
+                    if settings.hourlyReminderEnabled {
+                        self.scheduleHourlyNotification(
+                            atMinute: settings.hourlyReminderMinute,
+                            identifier: "hourlyReminder",
+                            title: settings.hourlyTitle,
+                            body: settings.hourlyBody,
+                            hourlySound: settings.hourlySound
+                        )
+                    }
+
+                    if settings.hourlyTaskReminderEnabled {
+                        self.scheduleHourlyNotification(
+                            atMinute: settings.hourlyTaskReminderMinute,
+                            identifier: "hourlyTaskReminder",
+                            title: settings.hourlyTaskTitle,
+                            body: settings.hourlyTaskBody,
+                            hourlySound: settings.hourlyTaskSound
+                        )
+                    }
+
+                    if settings.dailyReminderEnabled {
+                        self.scheduleDailyNotification(
+                            hour: settings.dailyHour,
+                            minute: settings.dailyMinute,
+                            title: settings.dailyTitle,
+                            body: settings.dailyBody,
+                            sound: settings.dailySound,
+                            identifier: "dailyReminder"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 
 
 }

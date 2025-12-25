@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var settings: NotificationSettings = NotificationSettingsStorage.shared.load()
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false // The default value (false) is used ONLY if the key does not exist
+    @AppStorage("notificationsEnabled") private var scheduledNotificationsEnabled = false // The default value (false) is used ONLY if the key does not exist
     @EnvironmentObject var permissionState: NotificationPermissionState
     // Read the agreement status from UserDefaults
     @AppStorage("legalAgreed") private var legalAgreed: Bool = false
@@ -39,14 +39,15 @@ struct SettingsView: View {
                         }
                         
                         // Toggle to cancel all scheduled notifications
-                        Toggle("Enable Scheduled Notifications", isOn: $notificationsEnabled)
-                            .onChange(of: notificationsEnabled) { oldValue, newValue in
+                        Toggle("Enable Scheduled Notifications",
+                               isOn: $scheduledNotificationsEnabled)
+                            .onChange(of: scheduledNotificationsEnabled) { oldValue, newValue in
                                 if newValue {
                                     // Re-schedule notifications based on saved settings
                                     NotificationManager.shared.enableNotifications { granted in
                                         DispatchQueue.main.async {
                                             // Only update scheduled notifications toggle, not system permission
-                                            notificationsEnabled = true
+                                            scheduledNotificationsEnabled = true
                                         }
                                     }
                                 } else {
@@ -57,7 +58,10 @@ struct SettingsView: View {
 
                     .onAppear {
                         permissionState.refresh()
-                        notificationsEnabled = permissionState.isDeviceNotificationPermitted
+                        if scheduledNotificationsEnabled  &&
+                            permissionState.isDeviceNotificationPermitted {
+                                NotificationManager.shared.ensureScheduledNotifications()
+                            }
                     }
 
                     Section(header: Text("Reminder Settings")) {
@@ -69,7 +73,7 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 4)
 
-                        } else if !notificationsEnabled {
+                        } else if !scheduledNotificationsEnabled {
 
                             Text("Scheduled notifications are disabled.")
                                 .font(.footnote)

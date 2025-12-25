@@ -57,31 +57,3 @@ struct LegalView: View {
         }
     }
 }
-
-//import SwiftUI
-//
-//struct LegalView: View {
-//    var onAgree: () -> Void  // Use a callback instead of binding
-//    
-//    var body: some View {
-//        VStack(spacing: 20) {
-//            ScrollView {
-//                Text(MindTracerLegalContents().legal)
-//                    .padding()
-//            }
-//            
-//            Button(action: {
-//                onAgree()  // Tell parent that user agreed
-//            }) {
-//                Text("Agree")
-//                    .bold()
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(Color.blue)
-//                    .foregroundColor(.white)
-//                    .cornerRadius(10)
-//            }
-//            .padding()
-//        }
-//    }
-//}

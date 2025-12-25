@@ -14,8 +14,6 @@ final class MindTracerMessageStore: ObservableObject {
     private let database = CKContainer.default().publicCloudDatabase
 
     func fetchMessages() {
-//        let predicate = NSPredicate(value: true)
-//        let predicate = NSPredicate(format: "isActive == 1")
         let predicate = NSPredicate(format: "isActive == %d", 1)
 
         let query = CKQuery(recordType: "MindTracerMessage", predicate: predicate)
