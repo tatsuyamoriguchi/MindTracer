@@ -58,7 +58,7 @@ struct InfoMessageRow: View {
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 
-        let urlString = "mailto:support@mindtracer.app?subject=\(encodedSubject)&body=\(encodedBody)"
+        let urlString = "mailto:support@modalflo.com?subject=\(encodedSubject)&body=\(encodedBody)"
 
         if let url = URL(string: urlString) {
             UIApplication.shared.open(url)

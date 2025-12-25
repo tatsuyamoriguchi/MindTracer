@@ -14,6 +14,8 @@ struct SettingsView: View {
     // Read the agreement status from UserDefaults
     @AppStorage("legalAgreed") private var legalAgreed: Bool = false
     @AppStorage("legalAgreedDate") private var legalAgreedDate: Date?
+    @Environment(\.openURL) private var openURL
+
     
     var body: some View {
         NavigationStack {
@@ -37,71 +39,52 @@ struct SettingsView: View {
                                 .font(.footnote)
                             }
                         }
-                        
-//                        // Toggle to cancel all scheduled notifications
-//                        Toggle("Enable Scheduled Notifications",
-//                               isOn: $scheduledNotificationsEnabled)
-//                            .onChange(of: scheduledNotificationsEnabled) { oldValue, newValue in
-//                                if newValue {
-//                                    // Re-schedule notifications based on saved settings
-//                                    NotificationManager.shared.enableNotifications { granted in
-//                                        DispatchQueue.main.async {
-//                                            // Only update scheduled notifications toggle, not system permission
-//                                            scheduledNotificationsEnabled = true
-//                                        }
-//                                    }
-//                                } else {
-//                                    NotificationManager.shared.cancelAllNotifications()
-//                                }
-//                            }
                     }
-
-//                    .onAppear {
-//                        permissionState.refresh()
-//                        if scheduledNotificationsEnabled  &&
-//                            permissionState.isDeviceNotificationPermitted {
-//                                NotificationManager.shared.ensureScheduledNotifications()
-//                            }
-//                    }
-
+                    
                     Section(header: Text("Reminder Settings")) {
                         // Toggle to cancel all scheduled notifications
                         Toggle("Enable Scheduled Notifications",
                                isOn: $scheduledNotificationsEnabled)
-                            .onChange(of: scheduledNotificationsEnabled) { oldValue, newValue in
-                                if newValue {
-                                    // Re-schedule notifications based on saved settings
-                                    NotificationManager.shared.enableNotifications { granted in
-                                        DispatchQueue.main.async {
-                                            // Only update scheduled notifications toggle, not system permission
+                        .onChange(of: scheduledNotificationsEnabled) { oldValue, newValue in
+                            if newValue {
+                                NotificationManager.shared.enableNotifications { granted in
+                                    DispatchQueue.main.async {
+                                        if granted {
                                             scheduledNotificationsEnabled = true
+                                        } else {
+                                            // Revert toggle if permission not granted
+                                            scheduledNotificationsEnabled = false
                                         }
+                                        permissionState.refresh()
                                     }
-                                } else {
-                                    NotificationManager.shared.cancelAllNotifications()
                                 }
+                            } else {
+                                NotificationManager.shared.cancelAllNotifications()
                             }
+                        }
+                        
+                        
                         
                         if !permissionState.isDeviceNotificationPermitted {
-
+                            
                             Text("Notifications not permitted on this device.")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 4)
-
+                            
                         } else if !scheduledNotificationsEnabled {
-
+                            
                             Text("Scheduled notifications are disabled.")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 4)
-
+                            
                         } else {
-
+                            
                             Text(settings.summaryText)
                                 .font(.caption)
                                 .foregroundColor(.primary)
-
+                            
                             NavigationLink("To Reminder Settings") {
                                 ReminderView(settings: $settings)
                             }
@@ -111,10 +94,10 @@ struct SettingsView: View {
                         permissionState.refresh()
                         if scheduledNotificationsEnabled  &&
                             permissionState.isDeviceNotificationPermitted {
-                                NotificationManager.shared.ensureScheduledNotifications()
-                            }
+                            NotificationManager.shared.ensureScheduledNotifications()
+                        }
                     }
-
+                    
                     
                     Section(header: Text("Version & Build Info")) {
                         Text(AppVersion.fullVersion)
@@ -143,6 +126,22 @@ struct SettingsView: View {
                     }
                     Section(header: Text("Contact")) {
                         Text(MindTracerLegalContents().contact)
+                        HStack {
+                            Text("Web: \(MindTracerLegalContents().webSite)")
+                            Button {
+                                openWeb()
+                            } label: {
+                                Image(systemName: "globe")
+                            }
+                        }
+                        HStack {
+                            Text(MindTracerLegalContents().email)
+                            Button {
+                                sendEmail()
+                            } label: {
+                                Image(systemName: "envelope")
+                            }
+                        }
                     }
                 }
                 .onChange(of: settings) {
@@ -153,10 +152,35 @@ struct SettingsView: View {
         }
         
     }
+    private func openWeb() {
+        guard let url = URL(string: MindTracerLegalContents().webSite) else {
+            return
+        }
+        openURL(url)
+    }
+
+    
+    private func sendEmail() {
+        let subject = "Mind Tracer Inquiry"
+        let body =
+    """
+    My question:
+    """
+        
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        let urlString = "mailto:support@modalflo.com?subject=\(encodedSubject)&body=\(encodedBody)"
+        
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
+    }
     
 }
 
 
 #Preview {
     SettingsView()
+        .environmentObject(NotificationPermissionState())
 }

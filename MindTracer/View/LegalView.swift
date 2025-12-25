@@ -13,13 +13,17 @@ struct LegalView: View {
     @State private var showCancelAlert = false
     
     var body: some View {
-        VStack(spacing: 20) {
-            ScrollView {
+        
+        Form {
+            Section {
                 Text(MindTracerLegalContents().legal)
-                    .padding()
+                    
+            } header: {
+                Text("MindTracer User Agreement")
+                    .font(.headline)
             }
             
-            VStack(spacing: 10) {
+            Section {
                 // Agree button
                 Button(action: {
                     onAgree()  // User agreed
@@ -56,4 +60,13 @@ struct LegalView: View {
             .padding()
         }
     }
+    
+    
 }
+
+#Preview {
+    LegalView {
+        print("Agree tapped (Preview)")
+    }
+}
+
