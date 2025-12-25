@@ -9,10 +9,14 @@ import SwiftUI
 
 struct ReminderView: View {
     @Binding var settings: NotificationSettings
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         Button {
             NotificationManager.shared.enableNotifications { _ in }
+            DispatchQueue.main.async {
+                dismiss()
+            }
         } label: {
             Text("Update Reminders")
         }

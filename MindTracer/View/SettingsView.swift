@@ -20,102 +20,74 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 Form {
                     Section {
-                        Toggle("Permit Notifications on this Device", isOn: $notificationsEnabled)
-                            .disabled(!permissionState.canRequestPermission) // disable if denied
-                            .onChange(of: notificationsEnabled) { newValue in
-                                guard newValue else {
-                                    NotificationManager.shared.cancelAllNotifications()
-                                    permissionState.isDeviceNotificationPermitted = false
-                                    return
-                                }
-
-                                NotificationManager.shared.enableNotifications { granted in
-                                    DispatchQueue.main.async {
-                                        notificationsEnabled = granted
-                                        permissionState.isDeviceNotificationPermitted = granted
+                        // Show system permission status
+                        if permissionState.isDeviceNotificationPermitted {
+                            Text("✅ Notifications are enabled on this device.")
+                                .foregroundColor(.green)
+                        } else {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("⚠️ Notifications are blocked. Please enable them in iOS Settings.")
+                                    .foregroundColor(.red)
+                                Button("Open Settings") {
+                                    if let url = URL(string: UIApplication.openSettingsURLString),
+                                       UIApplication.shared.canOpenURL(url) {
+                                        UIApplication.shared.open(url)
                                     }
                                 }
-                            }
-
-                        if !permissionState.canRequestPermission {
-                            Text("Notifications are blocked. Please enable them in iOS Settings.")
                                 .font(.footnote)
-                                .foregroundColor(.secondary)
+                            }
                         }
                         
-//                        Toggle("Permit Notifications on this Device", isOn: $notificationsEnabled)
-//                            .disabled(!permissionState.canRequestPermission)
-//                            .onChange(of: notificationsEnabled) { oldValue, newValue in
-//                                guard newValue else {
-//                                    NotificationManager.shared.cancelAllNotifications()
-//                                    permissionState.isDeviceNotificationPermitted = false
-//                                    return
-//                                }
-//                                
-//                                NotificationManager.shared.enableNotifications { granted in
-//                                    DispatchQueue.main.async {
-//                                        notificationsEnabled = granted
-//                                        permissionState.isDeviceNotificationPermitted = granted
-//                                    }
-//                                }
-//                                
-//                                //                                if newValue {
-//                                //                                    // Request notifications permission
-//                                //                                    NotificationManager.shared.enableNotifications { granted in
-//                                //                                        DispatchQueue.main.async {
-//                                //                                            // Update toggle based on actual system permission
-//                                //                                            notificationsEnabled = granted
-//                                //                                            permissionState.isDeviceNotificationPermitted = granted
-//                                //                                        }
-//                                //                                    }
-//                                //                                } else {
-//                                //                                    NotificationManager.shared.cancelAllNotifications()
-//                                //                                    permissionState.isDeviceNotificationPermitted = false
-//                                //                                }
-//                                
-//                                //                                if newValue {
-//                                //                                    NotificationManager.shared.enableNotifications()
-//                                //
-//                                //                                } else {
-//                                //                                    NotificationManager.shared.cancelAllNotifications()
-//                                //                                }
-//                                                                
-//                                // 🔑 FORCE UI STATE UPDATE
-////                                permissionState.isDeviceNotificationPermitted = newValue
-//                                
-//                            }
+                        // Toggle to cancel all scheduled notifications
+                        Toggle("Enable Scheduled Notifications", isOn: $notificationsEnabled)
+                            .onChange(of: notificationsEnabled) { oldValue, newValue in
+                                if newValue {
+                                    // Re-schedule notifications based on saved settings
+                                    NotificationManager.shared.enableNotifications { granted in
+                                        DispatchQueue.main.async {
+                                            // Only update scheduled notifications toggle, not system permission
+                                            notificationsEnabled = true
+                                        }
+                                    }
+                                } else {
+                                    NotificationManager.shared.cancelAllNotifications()
+                                }
+                            }
                     }
+
                     .onAppear {
                         permissionState.refresh()
                         notificationsEnabled = permissionState.isDeviceNotificationPermitted
                     }
-                    .onChange(of: permissionState.isDeviceNotificationPermitted) { _, newValue in
-                        notificationsEnabled = newValue
-                    }
-                    
+
                     Section(header: Text("Reminder Settings")) {
-                        
-                        if permissionState.isDeviceNotificationPermitted == true {
-                            
-                            Text(settings.summaryText)
-                                .font(.caption)
-                                .foregroundColor(.primary)
-                            
-                            NavigationLink("To Reminder Settings") {
-                                ReminderView(settings: $settings)
-                            }
-                            
-                        } else {
-                            
+
+                        if !permissionState.isDeviceNotificationPermitted {
+
                             Text("Notifications not permitted on this device.")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
-                                .multilineTextAlignment(.leading)
                                 .padding(.vertical, 4)
+
+                        } else if !notificationsEnabled {
+
+                            Text("Scheduled notifications are disabled.")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 4)
+
+                        } else {
+
+                            Text(settings.summaryText)
+                                .font(.caption)
+                                .foregroundColor(.primary)
+
+                            NavigationLink("To Reminder Settings") {
+                                ReminderView(settings: $settings)
+                            }
                         }
                     }
-                    
-                    
+
                     
                     Section(header: Text("Version & Build Info")) {
                         Text(AppVersion.fullVersion)
