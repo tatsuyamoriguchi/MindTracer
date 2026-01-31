@@ -16,7 +16,7 @@ struct LegalView: View {
         
         Form {
             Section {
-                Text(MindTracerLegalContents().legal)
+                Text(MindTracerLegalContents.legal.title)
                     
             } header: {
                 Text("MindTracer User Agreement")

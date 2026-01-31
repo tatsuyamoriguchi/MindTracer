@@ -147,7 +147,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"MindTracer/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86C8SC428C;
@@ -159,7 +159,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind Tracer reads your State of Mind from Health app to display mood summaries.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind Tracer may record your mood to Health app for tracking purposes.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to show nearby places.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to improve the app. Mind Tracer 2 uses your location to associate your mental state entries with places you visit, such as home or work, so you can identify patterns between locations and your mood.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -198,7 +198,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"MindTracer/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86C8SC428C;
@@ -210,7 +210,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Mind Tracer reads your State of Mind from Health app to display mood summaries.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Mind Tracer may record your mood to Health app for tracking purposes.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to show nearby places.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to improve the app. Mind Tracer 2 uses your location to associate your mental state entries with places you visit, such as home or work, so you can identify patterns between locations and your mood.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

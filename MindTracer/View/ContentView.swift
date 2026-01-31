@@ -3,7 +3,6 @@ import SwiftUI
 struct ContentView: View {
     @AppStorage("legalAgreed") private var legalAgreed: Bool = false
     @AppStorage("legalAgreedDate") private var legalAgreedDate: Date?
-    @EnvironmentObject var store: MindStateStore
     
     
     var body: some View {
